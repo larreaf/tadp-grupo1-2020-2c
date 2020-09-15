@@ -16,25 +16,17 @@ module PosCondicion
 
 end
 
-module Prototype
+class Prototype
 
-  def setProperty(property_name, value)
-    @properties = {} if @properties == nil
-    define_singleton_method(property_name) do
-        @properties[property_name] = value
-        property = getProperty(property_name)
-      case property
-      when Proc
-        property.call
-      else
-        property
-      end
+  def self.setProperty(obj, property_name, value)
+    case value
+    when Proc
+      obj.send(:define_singleton_method, property_name, &value)
+    else
+      obj.send(:define_singleton_method, property_name) {value}
     end
   end
 
-  def getProperty(property_name)
-    @properties.fetch(property_name) {raise PropertyNotFound.new}
-  end
 end
 
 # CustomExceptions
@@ -46,9 +38,9 @@ class NoCumplePoscondicionError < StandardError
 end
 
 class Object
-  prepend PreCondicion
-  prepend PosCondicion
-  prepend Prototype
+  include PreCondicion
+  include PosCondicion
+
   # El flag sirve para cortar el method_added, sino se genera un loop infinito.
   @@flag = 0
   def self.method_added(method)
@@ -76,7 +68,6 @@ class Object
 
     # Esto se realiza para poder redefinir el método guardando el método original en una variable.
     original_method = self.instance_method(method)
-    bloque_principal = original_method
 
     # self es la clase donde estoy definiendo el método. Por ejemplo, la clase Operaciones.
     self.send(:define_method, method) do | *args |
@@ -85,7 +76,7 @@ class Object
       params_method.each do |a|
         index = params_method.find_index(a)
         # Define los parámetros como properties de la instancia.
-        self.setProperty(a, argumentos[index])
+        Prototype.setProperty(self, a, argumentos[index])
       end
 
       # Transformar Proc a Lambda para cambiar el contexto de la clase al objeto y poder evaluar las pre y poscondiciones a nivel de instancia.
@@ -99,7 +90,7 @@ class Object
       if (!preCon.call())
         raise NoCumplePrecondicionError
       end
-      result = bloque_principal.bind_call(self, *args)
+      result = original_method.bind_call(self, *args)
       if(!posCon.call(result))
         raise NoCumplePoscondicionError
       end
@@ -137,3 +128,7 @@ class Operaciones
   end
 end
 
+op = Operaciones.new
+op.dividir(50, 2)
+op.dividir(40, 3)
+op.dividir(10, 0)
