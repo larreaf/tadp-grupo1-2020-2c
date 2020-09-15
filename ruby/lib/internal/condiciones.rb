@@ -22,9 +22,15 @@ module Prototype
   end
 
   def setProperty(property_name, value)
-    @properties = {} if !@property¿
+    @properties = {} if !@property
     define_singleton_method(property_name) do
-      property = getProperty(property_name)
+      begin
+        property = getProperty(property_name)
+      rescue PropertyNotFound
+        @properties[property_name] = value
+      ensure
+        property = getProperty(property_name)
+      end
       case property
       when Proc
         property.call
@@ -39,7 +45,12 @@ module Prototype
   end
 end
 
+# CustomExceptions
 class PropertyNotFound < StandardError
+end
+class NoCumplePrecondicionError < StandardError
+end
+class NoCumplePoscondicionError < StandardError
 end
 
 class Object
@@ -52,8 +63,10 @@ class Object
     if(@@flag == 1)
       return
     end
+
     @@flag = 1
 
+    # Pre y pos condicion default. En caso de que no se asocie ninguna precondición ni/o poscondición, se usan estas.
     if (!self.preCondicion)
       self.preCondicion = Proc.new {true}
     end
@@ -61,52 +74,49 @@ class Object
       self.posCondicion = Proc.new {|a| true}
     end
 
-    #Obtener parametros del método principal
-    params = []
-    self.instance_method(method).parameters.each { |a| params.push(a[1])}
+    # Obtener parametros del método principal para poder crear cada uno como una property de la instancia para que las preCondiciones definirse en base a los parámetros.
+    params_method = []
+    self.instance_method(method).parameters.each { |a| params_method.push(a[1])}
 
-    accesors = params.join(', :')
-
-    # if(accesors != '')
-    #   accesors = 'attr_accessor :'.concat(accesors)
-    #   self.class_eval(accesors)
-    #   #puts accesors
-    # end
-
-    params = params.join(',')
-
-
-    # Define los métodos para la precondicion y el bloque principal
-    self.define_method("pre_#{method}", self.preCondicion)
-    self.define_method("pri_#{method}", self.instance_method(method))
-    self.define_method("pos_#{method}", self.posCondicion)
-
+    # Guardo una copia de la PreCondicion y la PosCondición para llamarlas luego dentro de la redefinición del método en cuestión.
     preCon = self.preCondicion.dup
     posCon = self.posCondicion.dup
 
-    self.define_method("nuevo_#{method}") do | *args |
-      preCon.call(*args)
-      result = self.send(method, *args)
-      posCon.call
+    # Esto se realiza para poder redefinir el método guardando el método original en una variable.
+    original_method = self.instance_method(method)
+    bloque_principal = original_method
+
+    # self es la clase donde estoy definiendo el método. Por ejemplo, la clase Test.
+    self.send(:define_method, method) do | *args |
+      # self, dentro de este bloque, es una instancia de la clase. Por ejemplo, una instancia de la clase Test.
+      argumentos = args.to_ary
+      params_method.each do |a|
+        index = params_method.find_index(a)
+        # Define los parámetros como properties de la instancia.
+        self.setProperty(a, argumentos[index])
+      end
+
+      # Transformar Proc a Lambda para cambiar el contexto de la clase al objeto y poder evaluar las pre y poscondiciones a nivel de instancia.
+      self.define_singleton_method(:_, &preCon)
+      preCon = self.method(:_).to_proc
+
+      self.define_singleton_method(:_, &posCon)
+      posCon = self.method(:_).to_proc
+
+      # Llamadas a las condiciones y al método en cuestión.
+      if (!preCon.call())
+        raise NoCumplePrecondicionError
+      end
+      result = bloque_principal.bind_call(self, *args)
+      if(!posCon.call(result))
+        raise NoCumplePoscondicionError
+      end
+      return result
     end
-    #puts(params)
-    #Redefine el método con la precondición
-    #puts params
-    strProc =
-        "proc do |#{params}|\n"\
-        " if(!pre_#{method})\n"\
-        "   return -1\n"\
-        " end\n"\
-        " result =  pri_#{method}(#{params})\n"\
-        " pos_#{method}(result)\n"\
-        " return result \n"\
-      "end"
-    #puts strProc
-    procCondicionado = self.class_eval(strProc)
-    self.define_method(method, procCondicionado)
 
     @@flag = 0
-    #Limpia la preCondicion y posCondición para futuros métodos
+
+    # Limpia la preCondicion y posCondición para futuros métodos
     self.preCondicion = nil
     self.posCondicion = nil
   end
@@ -116,14 +126,20 @@ end
 class Test
 
   pre {puts 'Soy una precondicion'; true}
-  #pre {true}
   def test
     puts 'Soy el bloque principal'
     return
   end
 
-  pre {|divisor| divisor != 0}
-  #pos {|result| result * divisor == dividendo}
+  def preCondicionQueRetornaFalse
+    return false
+  end
+
+
+  pre { divisor != 0}
+  #pre { preCondicionQueRetornaFalse} #Para métodos internos también funciona.
+  #pre {puts self; true}
+  pos {|result| result * divisor == dividendo}
   def dividir(dividendo, divisor)
     dividendo / divisor
   end
