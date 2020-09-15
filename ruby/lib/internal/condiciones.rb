@@ -17,20 +17,12 @@ module PosCondicion
 end
 
 module Prototype
-  def initialize
-    @properties = {}
-  end
 
   def setProperty(property_name, value)
-    @properties = {} if !@property
+    @properties = {} if @properties == nil
     define_singleton_method(property_name) do
-      begin
-        property = getProperty(property_name)
-      rescue PropertyNotFound
         @properties[property_name] = value
-      ensure
         property = getProperty(property_name)
-      end
       case property
       when Proc
         property.call
@@ -86,9 +78,9 @@ class Object
     original_method = self.instance_method(method)
     bloque_principal = original_method
 
-    # self es la clase donde estoy definiendo el método. Por ejemplo, la clase Test.
+    # self es la clase donde estoy definiendo el método. Por ejemplo, la clase Operaciones.
     self.send(:define_method, method) do | *args |
-      # self, dentro de este bloque, es una instancia de la clase. Por ejemplo, una instancia de la clase Test.
+      # self, dentro de este bloque, es una instancia de la clase. Por ejemplo, una instancia de la clase Operaciones.
       argumentos = args.to_ary
       params_method.each do |a|
         index = params_method.find_index(a)
@@ -123,7 +115,7 @@ class Object
 end
 
 
-class Test
+class Operaciones
 
   pre {puts 'Soy una precondicion'; true}
   def test
@@ -145,29 +137,3 @@ class Test
   end
 end
 
-
-#test = Test.new
-
-#test.test
-
-#test.dividir 4,2
-#
-
-# class Prueba
-#   attr_accessor :divisor
-#   def initialize
-#     @codigo = proc { divisor != 0}
-#   end
-#
-#   def divide(divisor)
-#     puts self.divisor
-#     puts divisor
-#     @divisor = divisor
-#     puts @divisor
-#     #bool = @codigo.call()
-#     puts 'ejecuto bien'
-#     puts bool
-#   end
-# end
-
-#Prueba.new.prueba(0)
