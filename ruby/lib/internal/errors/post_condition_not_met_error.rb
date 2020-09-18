@@ -1,0 +1,2 @@
+class PostConditionNotMetError < StandardError
+end

@@ -1,70 +1,37 @@
-module PreCondicion
-  attr_accessor :preCondicion
-
-  def pre(&preCond)
-    self.preCondicion = preCond
-  end
-
-end
-
-module PosCondicion
-  attr_accessor :posCondicion
-
-  def pos(&posCond)
-    self.posCondicion = posCond
-  end
-
-end
-
-class Prototype
-
-  def self.setProperty(obj, property_name, value)
-    case value
-    when Proc
-      obj.send(:define_singleton_method, property_name, &value)
-    else
-      obj.send(:define_singleton_method, property_name) {value}
-    end
-  end
-
-end
-
-# CustomExceptions
-class PropertyNotFound < StandardError
-end
-class NoCumplePrecondicionError < StandardError
-end
-class NoCumplePoscondicionError < StandardError
-end
+require_relative 'modules/pre_condition_module'
+require_relative 'modules/post_condition_module'
+require_relative 'classes/prototype'
+require_relative 'errors/pre_condition_not_met_error'
+require_relative 'errors/post_condition_not_met_error'
 
 class Object
-  include PreCondicion
-  include PosCondicion
+  include PreCondition
+  include PostCondition
 
   # El flag sirve para cortar el method_added, sino se genera un loop infinito.
-  @@flag = 0
+  @flag = nil
+
   def self.method_added(method)
-    if(@@flag == 1)
+    if @flag == method
       return
     end
 
-    @@flag = 1
-
+    @flag = method
     # Pre y pos condicion default. En caso de que no se asocie ninguna precondición ni/o poscondición, se usan estas.
-    if (!self.preCondicion)
-      self.preCondicion = Proc.new {true}
+    unless self.pre_condition
+      self.pre_condition = Proc.new { true }
     end
-    if(!self.posCondicion)
-      self.posCondicion = Proc.new {|a| true}
+    unless self.post_condition
+      self.post_condition = Proc.new { |a| true }
     end
 
     # Obtener parametros del método principal para poder crear cada uno como una property de la instancia para que las preCondiciones definirse en base a los parámetros.
     params_method = []
-    self.instance_method(method).parameters.each { |a| params_method.push(a[1])}
+    self.instance_method(method).parameters.each { |a| params_method.push(a[1]) if !a[1].nil?}
 
     # Guardo una copia de la PreCondicion y la PosCondición para llamarlas luego dentro de la redefinición del método en cuestión.
-    preCon = self.preCondicion.dup
-    posCon = self.posCondicion.dup
+    pre_condition = self.pre_condition.dup
+    post_condition = self.post_condition.dup
 
     # Esto se realiza para poder redefinir el método guardando el método original en una variable.
     original_method = self.instance_method(method)
@@ -72,36 +39,37 @@ class Object
     # self es la clase donde estoy definiendo el método. Por ejemplo, la clase Operaciones.
     self.send(:define_method, method) do | *args |
       # self, dentro de este bloque, es una instancia de la clase. Por ejemplo, una instancia de la clase Operaciones.
-      argumentos = args.to_ary
+      arguments = args.to_ary
       params_method.each do |a|
         index = params_method.find_index(a)
         # Define los parámetros como properties de la instancia.
-        Prototype.setProperty(self, a, argumentos[index])
+        Prototype.set_property(self, a, arguments[index])
       end
 
       # Transformar Proc a Lambda para cambiar el contexto de la clase al objeto y poder evaluar las pre y poscondiciones a nivel de instancia.
-      self.define_singleton_method(:_, &preCon)
-      preCon = self.method(:_).to_proc
 
-      self.define_singleton_method(:_, &posCon)
-      posCon = self.method(:_).to_proc
+      self.define_singleton_method(:_, &pre_condition)
+      pre_condition = self.method(:_).to_proc
+
+      self.define_singleton_method(:_, &post_condition)
+      post_condition = self.method(:_).to_proc
 
       # Llamadas a las condiciones y al método en cuestión.
-      if (!preCon.call())
-        raise NoCumplePrecondicionError
+      unless pre_condition.call()
+        raise PreConditionNotMetError
       end
       result = original_method.bind_call(self, *args)
-      if(!posCon.call(result))
-        raise NoCumplePoscondicionError
+      unless post_condition.call(result)
+        raise PostConditionNotMetError
       end
       return result
     end
 
-    @@flag = 0
+    @flag = nil
 
     # Limpia la preCondicion y posCondición para futuros métodos
-    self.preCondicion = nil
-    self.posCondicion = nil
+    self.pre_condition = nil
+    self.post_condition = nil
   end
 end
 
@@ -129,6 +97,5 @@ class Operaciones
 end
 
 op = Operaciones.new
-op.dividir(50, 2)
-op.dividir(40, 3)
-op.dividir(10, 0)
+op.dividir(50, 3)
+
