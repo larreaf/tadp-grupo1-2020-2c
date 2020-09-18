@@ -14,17 +14,17 @@ class Object
   @flag = nil
 
   def self.method_added(method)
-    if @flag == method
+    if @flag == method or self.is_a? PrototypedObject
       return
     end
 
     @flag = method
     # Pre y pos condicion default. En caso de que no se asocie ninguna precondición ni/o poscondición, se usan estas.
-    unless self.pre_condition
-      self.pre_condition = Proc.new { true }
-    end
-    unless self.post_condition
-      self.post_condition = Proc.new { |a| true }
+    if self.pre_condition.nil? and self.post_condition.nil? and method[-1,1] != '='
+      return
+    else
+      self.pre_condition = Proc.new { true }      unless self.pre_condition
+      self.post_condition = Proc.new { |a| true } unless self.post_condition
     end
 
     # Obtener parametros del método principal para poder crear cada uno como una property de la instancia para que las preCondiciones definirse en base a los parámetros.
@@ -38,8 +38,6 @@ class Object
     # Esto se realiza para poder redefinir el método guardando el método original en una variable.
     original_method = self.instance_method(method)
 
-    puts method
-
     # self es la clase donde estoy definiendo el método. Por ejemplo, la clase Operaciones.
 
     self.send(:define_method, method) do | *args |
@@ -47,33 +45,28 @@ class Object
       arguments = args.to_ary
 
 
-      puts method
+      prototype = PrototypedObject.new(self)
       params_method.each do |a|
-        puts a
+
         index = params_method.find_index(a)
         # Define los parámetros como properties de la instancia.
 
-        Prototype.set_property(self, a, arguments[index])
+        prototype.set_property(a, arguments[index])
 
       end
-      # Transformar Proc a Lambda para cambiar el contexto de la clase al objeto y poder evaluar las pre y poscondiciones a nivel de instancia.
 
-      self.define_singleton_method(:_, &pre_condition)
-      pre_condition = self.method(:_).to_proc
-
-      self.define_singleton_method(:_, &post_condition)
-      post_condition = self.method(:_).to_proc
-
+      prototype.set_method(:pre_cond, pre_condition)
+      prototype.set_method(:pos_cond, post_condition)
 
       # Llamadas a las condiciones y al método en cuestión.
-      unless pre_condition.call
+      unless prototype.send(:pre_cond)
         raise PreConditionNotMetError
       end
       result = original_method.bind_call(self, *args)
 
       validate_invariants
 
-      unless post_condition.call(result)
+      unless prototype.send(:pos_cond, result)
         raise PostConditionNotMetError
       end
       return result
@@ -116,14 +109,12 @@ class Operaciones
   def dividir(dividendo, divisor)
     dividendo / divisor
   end
-
-  # setea la property vida
-  def vida=(vida)
-    @vida = vida
-  end
 end
 
 op = Operaciones.new(2)
+op.dividir(100, 50)
+op.dividir(300, 2)
+#op.dividir(100,3)
 puts op.vida
 op.vida= 10
 puts op.vida
