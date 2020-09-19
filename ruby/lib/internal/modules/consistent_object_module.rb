@@ -1,9 +1,9 @@
-require_relative '../modules/observe_method_execution_module'
+require_relative '../modules/before_and_after_method_execution_module'
 require_relative '../errors/nil_argument_error'
 require_relative '../errors/invariant_exception'
 
 module ConsistentObject
-  prepend ObserveMethodExecution
+  prepend BeforeAndAfterMethodExecution
   @invariants = []
 
   private def invariants

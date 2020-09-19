@@ -1,9 +1,9 @@
-require 'internal/modules/consistent_object_module'
-require 'internal/modules/pre_condition_module'
-require 'internal/modules/post_condition_module'
-require 'internal/classes/prototype'
-require 'internal/errors/pre_condition_not_met_error'
-require 'internal/errors/post_condition_not_met_error'
+require_relative 'internal/modules/consistent_object_module'
+require_relative 'internal/modules/pre_condition_module'
+require_relative 'internal/modules/post_condition_module'
+require_relative 'internal/classes/prototype'
+require_relative 'internal/errors/pre_condition_not_met_error'
+require_relative 'internal/errors/post_condition_not_met_error'
 
 class Object
   include ConsistentObject
@@ -55,18 +55,15 @@ class Object
 
       end
 
-      prototype.set_method(:pre_cond, pre_condition)
-      prototype.set_method(:pos_cond, post_condition)
-
       # Llamadas a las condiciones y al método en cuestión.
-      unless prototype.send(:pre_cond)
+      unless prototype.instance_eval &pre_condition
         raise PreConditionNotMetError
       end
       result = original_method.bind_call(self, *args)
 
       validate_invariants
 
-      unless prototype.send(:pos_cond, result)
+      unless prototype.instance_exec result, &post_condition
         raise PostConditionNotMetError
       end
       return result
@@ -114,14 +111,3 @@ end
 op = Operaciones.new(2)
 op.dividir(100, 50)
 op.dividir(300, 2)
-#op.dividir(100,3)
-puts op.vida
-op.vida= 10
-puts op.vida
-op.vida=(100)
-puts op.vida
-op.vida=(-100)
-puts op.vida
-#op.dividir(50, 2)
-#op.dividir(2,2)
-#op.dividir(42,2)

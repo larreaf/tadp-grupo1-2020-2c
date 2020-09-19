@@ -1,3 +1,5 @@
+require_relative 'spec_helper'
+
 describe Prueba do
   let(:prueba) { Prueba.new }
 
