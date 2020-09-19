@@ -9,12 +9,14 @@ class Object
 end
 
 class A
-  after_each_call { puts 'see ya' }
+  after_each_call { puts 'See ya' }
   before_each_call { puts 'hi '}
 
   def hi
     puts 'how you doing pal?'
   end
+
+  before_and_after_each_call(proc {puts 'It\'s been a while'}, proc{ puts 'Don\' forget to come the next week!' })
 end
 
 a = A.new
