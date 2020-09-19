@@ -44,8 +44,7 @@ module BeforeAndAfterMethodExecution
       before_method_blocks.each { |before_block| self.instance_eval &before_block }
       result = original_method.bind_call(self, *arguments)
       after_method_blocks.each { |after_block|
-        self.instance_eval &after_block if after_block.arity == 0
-        self.instance_exec result, &after_block if after_block.arity == 1
+        self.instance_exec result, &after_block
       }
     end
 
