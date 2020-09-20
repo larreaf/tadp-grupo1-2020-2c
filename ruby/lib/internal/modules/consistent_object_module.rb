@@ -1,6 +1,6 @@
 require_relative '../modules/before_and_after_method_execution_module'
 require_relative '../errors/nil_argument_error'
-require_relative '../errors/invariant_exception'
+require_relative '../errors/invariant_error'
 
 module ConsistentObject
   prepend BeforeAndAfterMethodExecution

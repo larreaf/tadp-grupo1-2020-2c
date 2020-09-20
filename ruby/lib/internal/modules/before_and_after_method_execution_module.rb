@@ -1,8 +1,11 @@
 require_relative 'pre_condition_module'
 require_relative 'post_condition_module'
+require_relative 'proc_arity_restrainer_module'
 require_relative '../classes/prototype'
 
 module BeforeAndAfterMethodExecution
+  include ProcArityRestrainer
+
   def before_method_blocks
     @before_methods_blocks ||= []
     @before_methods_blocks
@@ -33,21 +36,37 @@ module BeforeAndAfterMethodExecution
       return
     end
 
+    self.redefine_method_internal(method)
+  end
+
+  protected def redefine_method_internal(method)
     @flag = method
 
     original_method = self.instance_method(method)
 
-    before_method_blocks = self.before_method_blocks
-    after_method_blocks = self.after_method_blocks
+    __before_method_blocks = self.before_method_blocks_internal(method)
+    __after_method_blocks = self.after_method_blocks_internal(method)
 
     self.define_method(method) do | *arguments |
-      before_method_blocks.each { |before_block| self.instance_eval &before_block }
-      result = original_method.bind_call(self, *arguments)
-      after_method_blocks.each { |after_block|
-        self.instance_exec result, &after_block
-      }
+      context = self.method_context(original_method, arguments)
+      __before_method_blocks.each { |before_block| context.instance_eval &before_block }
+      result = original_method.bind_call(context, *arguments)
+      __after_method_blocks.each { |after_block| context.instance_exec result, &after_block }
+      result
     end
 
     @flag = nil
+  end
+
+  protected def before_method_blocks_internal(method)
+    self.before_method_blocks
+  end
+
+  protected def after_method_blocks_internal(method)
+    self.after_method_blocks
+  end
+
+  protected def method_context(method, arguments)
+    self
   end
 end
