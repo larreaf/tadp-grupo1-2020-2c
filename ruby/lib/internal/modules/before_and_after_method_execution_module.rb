@@ -44,13 +44,15 @@ module BeforeAndAfterMethodExecution
 
     original_method = self.instance_method(method)
 
-    __before_method_blocks = self.before_method_blocks_internal(method)
-    __after_method_blocks = self.after_method_blocks_internal(method)
+    __before_method_blocks = self.before_method_blocks
+    __after_method_blocks = self.after_method_blocks
+    __before_method_blocks = self.additional_before_method_blocks(__before_method_blocks, method)
+    __after_method_blocks = self.additional_after_method_blocks(__after_method_blocks, method)
 
     self.define_method(method) do | *arguments |
       context = self.method_context(original_method, arguments)
       __before_method_blocks.each { |before_block| context.instance_eval &before_block }
-      result = original_method.bind_call(context, *arguments)
+      result = original_method.bind_call(context.original, *arguments)
       __after_method_blocks.each { |after_block| context.instance_exec result, &after_block }
       result
     end
@@ -58,8 +60,12 @@ module BeforeAndAfterMethodExecution
     @flag = nil
   end
 
-  protected def before_method_blocks_internal(method)
-    self.before_method_blocks
+  protected def additional_before_method_blocks(before_method_blocks, method)
+    before_method_blocks
+  end
+
+  protected def additional_after_method_blocks(after_method_blocks, method)
+    after_method_blocks
   end
 
   protected def after_method_blocks_internal(method)
@@ -67,6 +73,6 @@ module BeforeAndAfterMethodExecution
   end
 
   protected def method_context(method, arguments)
-    self
+    PrototypedObject.new(self)
   end
 end

@@ -1,12 +1,12 @@
 class PrototypedObject
   attr_accessor :prototype
 
-  def initialize(prototype= Object.new)
+  def initialize(prototype = Object.new)
     self.prototype = prototype
   end
 
   def set_property(sym, value)
-    if(!self.prototype.respond_to? sym)
+    unless self.prototype.respond_to? sym
       self.singleton_class.send :attr_accessor, sym
       self.send "#{sym}=", value
     end
@@ -20,7 +20,7 @@ class PrototypedObject
     self.prototype = proto
   end
 
-  def respond_to_missing?(sym, include_all=true)
+  def respond_to_missing?(sym, include_all = true)
     super(sym, include_all) or self.prototype.respond_to? sym
   end
 
@@ -29,5 +29,9 @@ class PrototypedObject
     # method = self.prototype.method(sym).unbind
     # method.bind(self).call *args
     self.prototype.send(sym, *args)
+  end
+
+  def original
+    self.prototype
   end
 end

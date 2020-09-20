@@ -16,11 +16,11 @@ class ConditionsEnvelopeMethod
   end
 
   def post_conditions
-    @pre_conditions
+    @post_conditions
   end
 
-  def is_default?
-    @pre_conditions.first == DefaultConditionsProcs::PRE and @post_conditions.first == DefaultConditionsProcs::POST
+  def is_unconditioned?
+    !@pre_conditions.any? and !@post_conditions.any?
   end
 
   def assigned_method
