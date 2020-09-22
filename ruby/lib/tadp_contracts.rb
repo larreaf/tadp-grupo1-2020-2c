@@ -13,7 +13,6 @@ class A
   after_each_call { puts 'See ya' }
   before_each_call { puts 'hi '}
 
-  pre { false }
   def hi
     puts 'how you doing pal?'
   end
@@ -24,8 +23,10 @@ class A
   before_and_after_each_call(proc {puts 'It\'s been a while'}, proc{ puts 'Don\' forget to come the next week!' })
 end
 
+
 a = A.new
 a.hi
+
 hi_envelope = A.send(:get_conditions_envelope, :hi)
 puts "Method name #{hi_envelope.assigned_method}"
 puts hi_envelope.is_unconditioned?

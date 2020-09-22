@@ -1,6 +1,8 @@
 require_relative 'before_and_after_method_execution_module'
 require_relative '../classes/conditions_envelope_method'
 require_relative '../classes/prototype'
+require_relative '../errors/pre_condition_not_met_error'
+require_relative '../errors/post_condition_not_met_error'
 
 module MethodEnveloper
   include BeforeAndAfterMethodExecution
@@ -44,15 +46,13 @@ module MethodEnveloper
     @post_conditions_block = []
   end
 
-  #TODO: Obtener la lista de before blocks
-  #protected def before_method_blocks_internal(method)
-  #  super(method) + self.get_conditions_envelope(method).pre_conditions
-  #end
+  protected def before_method_blocks_internal(method)
+    super + self.send(:get_conditions_envelope, method).pre_conditions
+  end
 
-  #TODO: Obtener la lista de after blocks
-  #protected def after_method_blocks_internal(method)
-  #  super(method) + self.get_conditions_envelope(method).post_conditions
-  #end
+  protected def after_method_blocks_internal(method)
+    super + self.send(:get_conditions_envelope, method).post_conditions
+  end
 
   protected def method_context(method, arguments)
     prototype = super
