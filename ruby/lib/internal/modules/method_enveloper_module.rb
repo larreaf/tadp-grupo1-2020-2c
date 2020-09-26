@@ -8,16 +8,16 @@ module MethodEnveloper
   include BeforeAndAfterMethodExecution
 
   @pre_conditions_blocks
-  @post_conditions_block
+  @post_conditions_blocks
 
   def pre_conditions_blocks
     @pre_conditions_blocks ||= []
     @pre_conditions_blocks
   end
 
-  def post_conditions_block
-    @post_conditions_block ||= []
-    @post_conditions_block
+  def post_conditions_blocks
+    @post_conditions_blocks ||= []
+    @post_conditions_blocks
   end
 
   def conditions_envelopes
@@ -32,18 +32,19 @@ module MethodEnveloper
 
   def post(&after_block)
     post_condition_block = proc { |result| raise PostConditionNotMetError unless self.instance_exec result, &after_block }
-    self.post_conditions_block.push(post_condition_block)
+    self.post_conditions_blocks.push(post_condition_block)
   end
 
   protected def redefine_method_internal(method)
     conditions_envelope = self.send(:get_conditions_envelope, method)
     if conditions_envelope == nil
-      conditions_envelope = ConditionsEnvelopeMethod.new(method, pre_conditions_blocks, post_conditions_block)
+      conditions_envelope = ConditionsEnvelopeMethod.new(method)
       conditions_envelopes.push(conditions_envelope)
     end
+    conditions_envelope.supplant_conditions(pre_conditions_blocks, post_conditions_blocks)
     super(method)
     @pre_conditions_blocks = []
-    @post_conditions_block = []
+    @post_conditions_blocks = []
   end
 
   protected def before_method_blocks_internal(method)

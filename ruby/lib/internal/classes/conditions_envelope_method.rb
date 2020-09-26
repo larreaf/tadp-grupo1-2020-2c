@@ -3,10 +3,15 @@ class ConditionsEnvelopeMethod
   @pre_conditions
   @post_conditions
 
-  def initialize(method, pre_conditions, post_conditions)
+  def initialize(method)
     raise NilArgumentError if method == nil
 
     @method = method
+    @pre_conditions = []
+    @post_conditions = []
+  end
+
+  def supplant_conditions(pre_conditions, post_conditions)
     @pre_conditions = pre_conditions
     @post_conditions = post_conditions
   end
