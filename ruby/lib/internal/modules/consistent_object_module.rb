@@ -1,9 +1,7 @@
-require_relative '../modules/before_and_after_method_execution_module'
 require_relative '../errors/nil_argument_error'
 require_relative '../errors/invariant_error'
 
 module ConsistentObject
-  prepend BeforeAndAfterMethodExecution
   @invariants = []
 
   private def invariants
@@ -13,11 +11,9 @@ module ConsistentObject
     @invariants
   end
 
-  def validate_invariants
-    self.class.send(:invariants).each do |invariant|
-      unless self.instance_eval(&invariant)
-        raise InvariantError.new(self)
-      end
+  def validate_invariants(context)
+    @invariants.each do |invariant|
+      raise InvariantError.new(context) unless context.instance_eval(&invariant)
     end
   end
 

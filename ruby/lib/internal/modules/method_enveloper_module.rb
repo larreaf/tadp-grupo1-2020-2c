@@ -57,7 +57,7 @@ module MethodEnveloper
   protected def method_context(method, arguments)
     prototype = super
     parameters = []
-    method.parameters.each { |parameter| parameters.push(parameter[1])}
+    method.parameters.each { |parameter| parameters.push(parameter[1]) unless parameter[1].nil? }
     parameters.zip(arguments) do |parameter, argument|
       prototype.set_property(parameter, argument)
     end

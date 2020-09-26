@@ -4,14 +4,37 @@ require_relative 'internal/modules/method_enveloper_module'
 class Object
   include MethodEnveloper
 
+  class << self
+    alias :attr_reader_original :attr_reader
+    def attr_reader(method_name)
+      self.send(:getters).push(method_name)
+      attr_reader_original method_name
+    end
+
+    alias :attr_accessor_original :attr_accessor
+    def attr_accessor(method_name)
+      self.send(:accessors).push(method_name)
+      attr_accessor_original method_name
+    end
+  end
+
   def self.method_added(method)
     self.redefine_method(method)
   end
 end
 
 class A
+
+  attr_accessor :vida
+
   after_each_call { puts 'See ya' }
   before_each_call { puts 'hi '}
+
+  invariant { vida > 0 }
+
+  def initialize
+    self.vida = 10
+  end
 
   def hi
     puts 'how you doing pal?'
@@ -25,16 +48,5 @@ end
 
 
 a = A.new
-a.hi
-
-hi_envelope = A.send(:get_conditions_envelope, :hi)
-puts "Method name #{hi_envelope.assigned_method}"
-puts hi_envelope.is_unconditioned?
-puts hi_envelope.pre_conditions
-puts hi_envelope.post_conditions
-
-bye_envelope = A.send(:get_conditions_envelope, :bye)
-puts "Method name #{bye_envelope.assigned_method}"
-puts bye_envelope.is_unconditioned?
-puts bye_envelope.pre_conditions
-puts bye_envelope.post_conditions
+#a.vida = -1
+#puts a.vida
