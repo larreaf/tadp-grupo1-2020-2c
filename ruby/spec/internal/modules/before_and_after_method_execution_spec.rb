@@ -39,11 +39,11 @@ describe BeforeAndAfterMethodExecution do
       method_called_proc = proc { method_called = before_method_called }
       after_method_proc = proc { after_method_called = (before_method_called and method_called_proc)  }
 
-      before_and_after_method_execution.before_each_call &before_method_proc
+      before_and_after_method_execution.class.before_each_call &before_method_proc
       before_and_after_method_execution.define_method(:test) do
         method_called_proc.call
       end
-      before_and_after_method_execution.after_each_call &after_method_proc
+      before_and_after_method_execution.class.after_each_call &after_method_proc
 
       before_and_after_method_execution.send(:redefine_method, :test)
 
@@ -54,29 +54,30 @@ describe BeforeAndAfterMethodExecution do
       expect(after_method_called).to be_truthy
     end
 
-    it 'redefine_method should call every before and after block with arity one' do
-      before_method_called = false
-      method_called = false
-      after_method_called = false
-
-      before_method_proc = proc { before_method_called = true }
-      method_called_proc = proc { method_called = before_method_called }
-      after_method_proc = proc { |result| after_method_called = (before_method_called and method_called_proc and result)  }
-
-      before_and_after_method_execution.before_each_call &before_method_proc
-      before_and_after_method_execution.define_method(:test) do
-        method_called_proc.call
-        true
-      end
-      before_and_after_method_execution.after_each_call &after_method_proc
-
-      before_and_after_method_execution.send(:redefine_method, :test)
-
-      before_and_after_method_execution.test
-
-      expect(before_method_called).to be_truthy
-      expect(method_called).to be_truthy
-      expect(after_method_called).to be_truthy
-    end
+    #TODO: Reutilizar lógica para los tests de method enveloper
+    #it 'redefine_method should call every before and after block with arity one' do
+    #  before_method_called = false
+    #  method_called = false
+    #  after_method_called = false
+    #
+    # before_method_proc = proc { before_method_called = true }
+    # method_called_proc = proc { method_called = before_method_called }
+    # after_method_proc = proc { |result| after_method_called = (before_method_called and method_called_proc and result)  }
+    #
+    # before_and_after_method_execution.class.before_each_call &before_method_proc
+    # before_and_after_method_execution.define_method(:test) do
+    #   method_called_proc.call
+    #   true
+    # end
+    # before_and_after_method_execution.class.after_each_call &after_method_proc
+    #
+    # before_and_after_method_execution.send(:redefine_method, :test)
+    #
+    # before_and_after_method_execution.test
+    #
+    # expect(before_method_called).to be_truthy
+    # expect(method_called).to be_truthy
+    # expect(after_method_called).to be_truthy
+    #end
   end
 end

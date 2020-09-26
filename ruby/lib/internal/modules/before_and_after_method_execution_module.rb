@@ -18,19 +18,14 @@ module BeforeAndAfterMethodExecution
     @after_methods_blocks
   end
 
-  private def getters
-    @getters ||= []
-    @getters
-  end
-
   @redefinition_flag = nil
 
   def before_each_call(&before_block)
-    self.before_method_blocks.push(before_block)
+    self.push_restricted_proc(self.before_method_blocks, 0, &before_block)
   end
 
   def after_each_call(&after_block)
-    self.after_method_blocks.push(after_block)
+    self.push_restricted_proc(self.after_method_blocks, 0, &after_block)
   end
 
   def before_and_after_each_call(before_block, after_block)
@@ -41,7 +36,7 @@ module BeforeAndAfterMethodExecution
   protected def redefine_method(method)
     getters = self.send(:getters)
     reserved_methods = self.send(:reserved_methods)
-    if @redefinition_flag == method or self.is_a? PrototypedObject or (reserved_methods + getters).any? method
+    if @redefinition_flag == method or self.is_a? PrototypedObject or (reserved_methods + getters).include? method
       return
     end
 
@@ -79,6 +74,16 @@ module BeforeAndAfterMethodExecution
 
   protected def method_context(method, arguments)
     PrototypedObject.new(self)
+  end
+
+
+  private def getters
+    @getters ||= []
+    @getters
+  end
+
+  private def add_getters(method_names)
+    @getters = self.send(:getters) + method_names
   end
 
   private def reserved_methods

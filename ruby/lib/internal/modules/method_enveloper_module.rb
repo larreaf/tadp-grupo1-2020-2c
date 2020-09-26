@@ -26,13 +26,14 @@ module MethodEnveloper
   end
 
   def pre(&before_block)
-    pre_condition_block = proc { raise PreConditionNotMetError unless self.instance_eval &before_block }
-    self.pre_conditions_blocks.push(pre_condition_block)
+    self
+    pre_condition_block = proc { raise PreConditionNotMetError.new(before_block.source_location) unless self.instance_eval &before_block }
+    self.push_restricted_proc(self.pre_conditions_blocks, 0, &pre_condition_block)
   end
 
   def post(&after_block)
-    post_condition_block = proc { |result| raise PostConditionNotMetError unless self.instance_exec result, &after_block }
-    self.post_conditions_blocks.push(post_condition_block)
+    post_condition_block = proc { |result| raise PostConditionNotMetError.new(after_block.source_location) unless self.instance_exec result, &after_block }
+    self.push_restricted_proc(self.post_conditions_blocks, 1, &post_condition_block)
   end
 
   protected def redefine_method_internal(method)

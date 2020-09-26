@@ -14,10 +14,6 @@ module ConsistentObject
   end
 
   def invariant(&block)
-    if block == nil
-      raise NilArgumentError
-    end
-
     invariants.push(block)
   end
 end
