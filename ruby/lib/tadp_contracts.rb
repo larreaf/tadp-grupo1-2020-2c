@@ -5,16 +5,14 @@ class Object
   include MethodEnveloper
 
   class << self
-    alias :attr_reader_original :attr_reader
     def attr_reader(method_name)
       self.send(:getters).push(method_name)
-      attr_reader_original method_name
+      super
     end
 
-    alias :attr_accessor_original :attr_accessor
     def attr_accessor(method_name)
-      self.send(:accessors).push(method_name)
-      attr_accessor_original method_name
+      self.send(:getters).push(method_name)
+      super
     end
   end
 
@@ -43,10 +41,17 @@ class A
   def bye
   end
 
+  pre { divisor != 0 }
+  post { |result| dividendo == (result * divisor) }
+  def dividir(dividendo, divisor)
+    dividendo / divisor
+  end
+
   before_and_after_each_call(proc {puts 'It\'s been a while'}, proc{ puts 'Don\' forget to come the next week!' })
 end
 
 
 a = A.new
+a.dividir(50, 2)
 #a.vida = -1
 #puts a.vida

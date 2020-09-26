@@ -26,17 +26,17 @@ module MethodEnveloper
   end
 
   def pre(&before_block)
-    pre_condition_block = proc { raise PreConditionNotMetError unless before_block.call }
+    pre_condition_block = proc { raise PreConditionNotMetError unless self.instance_eval &before_block }
     self.pre_conditions_blocks.push(pre_condition_block)
   end
 
   def post(&after_block)
-    post_condition_block = proc { raise PostConditionNotMetError unless after_block.call }
+    post_condition_block = proc { |result| raise PostConditionNotMetError unless self.instance_exec result, &after_block }
     self.post_conditions_block.push(post_condition_block)
   end
 
   protected def redefine_method_internal(method)
-    conditions_envelope = conditions_envelopes.detect { |ce| ce.assigned_method == method }
+    conditions_envelope = self.send(:get_conditions_envelope, method)
     if conditions_envelope == nil
       conditions_envelope = ConditionsEnvelopeMethod.new(method, pre_conditions_blocks, post_conditions_block)
       conditions_envelopes.push(conditions_envelope)

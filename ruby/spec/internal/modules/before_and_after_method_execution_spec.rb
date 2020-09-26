@@ -45,7 +45,7 @@ describe BeforeAndAfterMethodExecution do
       end
       before_and_after_method_execution.after_each_call &after_method_proc
 
-      before_and_after_method_execution.redefine_method(:test)
+      before_and_after_method_execution.send(:redefine_method, :test)
 
       before_and_after_method_execution.test
 
@@ -70,7 +70,7 @@ describe BeforeAndAfterMethodExecution do
       end
       before_and_after_method_execution.after_each_call &after_method_proc
 
-      before_and_after_method_execution.redefine_method(:test)
+      before_and_after_method_execution.send(:redefine_method, :test)
 
       before_and_after_method_execution.test
 

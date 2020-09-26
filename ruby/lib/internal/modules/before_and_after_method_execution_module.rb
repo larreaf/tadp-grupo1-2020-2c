@@ -1,5 +1,3 @@
-require_relative 'pre_condition_module'
-require_relative 'post_condition_module'
 require_relative 'consistent_object_module'
 require_relative 'proc_arity_restrainer_module'
 require_relative '../classes/prototype'
@@ -20,6 +18,11 @@ module BeforeAndAfterMethodExecution
     @after_methods_blocks
   end
 
+  private def getters
+    @getters ||= []
+    @getters
+  end
+
   @redefinition_flag = nil
 
   def before_each_call(&before_block)
@@ -36,8 +39,9 @@ module BeforeAndAfterMethodExecution
   end
 
   protected def redefine_method(method)
-    class_getters = self.send(:class_getters)
-    if @redefinition_flag == method or self.is_a? PrototypedObject or method == :irb_binding or method == :initialize or class_getters.any? method
+    getters = self.send(:getters)
+    reserved_methods = self.send(:reserved_methods)
+    if @redefinition_flag == method or self.is_a? PrototypedObject or (reserved_methods + getters).any? method
       return
     end
 
@@ -48,7 +52,6 @@ module BeforeAndAfterMethodExecution
     @redefinition_flag = method
 
     original_method = self.instance_method(method)
-    invariants = self.send(:invariants)
 
     self.define_method(method) do | *arguments |
       context = self.method_context(original_method, arguments)
@@ -57,9 +60,7 @@ module BeforeAndAfterMethodExecution
 
       result = original_method.bind(context.original).call(*arguments)
 
-      invariants.each do |invariant|
-        raise InvariantError.new(context.original) unless context.original.instance_eval &invariant
-      end
+      self.class.send(:validate_invariants, context.original)
 
       self.class.send(:after_method_blocks_internal, method).each { |after_block| context.instance_exec result, &after_block }
       result
@@ -80,17 +81,7 @@ module BeforeAndAfterMethodExecution
     PrototypedObject.new(self)
   end
 
-  private def getters
-    @getters ||= []
-    @getters
-  end
-
-  private def accessors
-    @accessors ||= []
-    @accessors
-  end
-
-  private def class_getters
-    self.send(:accessors) + self.send(:getters)
+  private def reserved_methods
+    [:irb_binding]
   end
 end
