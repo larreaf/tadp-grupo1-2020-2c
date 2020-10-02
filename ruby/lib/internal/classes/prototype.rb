@@ -12,10 +12,6 @@ class PrototypedObject
     end
   end
 
-  def set_method(sym, block)
-    self.define_singleton_method sym, block
-  end
-
   def set_prototype(proto)
     self.prototype = proto
   end
@@ -26,8 +22,6 @@ class PrototypedObject
 
   def method_missing(sym, *args)
     super unless self.respond_to? sym
-    # method = self.prototype.method(sym).unbind
-    # method.bind(self).call *args
     self.prototype.send(sym, *args)
   end
 
