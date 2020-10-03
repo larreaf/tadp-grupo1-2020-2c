@@ -3,7 +3,6 @@ require_relative 'proc_arity_restrainer_module'
 require_relative '../classes/prototype'
 require_relative '../errors/invariant_error'
 
-#TODO: Abstraer lógica
 module BeforeAndAfterMethodExecution
   include ProcArityRestrainer
   include ConsistentObject

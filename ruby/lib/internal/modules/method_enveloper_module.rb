@@ -48,13 +48,19 @@ module MethodEnveloper
     @post_conditions_blocks = []
   end
 
+  #Por entrar en conflicto con el framework de testing
   protected def before_method_blocks_internal(method)
-    super + self.send(:get_conditions_envelope, method).pre_conditions
+    conditions_envelope = self.send(:get_conditions_envelope, method)
+    pre_conditions = conditions_envelope == nil ? [] : conditions_envelope.pre_conditions
+    super + pre_conditions
   end
 
   protected def after_method_blocks_internal(method)
-    super + self.send(:get_conditions_envelope, method).post_conditions
+    conditions_envelope = self.send(:get_conditions_envelope, method)
+    post_conditions = conditions_envelope == nil ? [] : conditions_envelope.post_conditions
+    super + post_conditions
   end
+
 
   protected def method_context(method, arguments)
     prototype = super
