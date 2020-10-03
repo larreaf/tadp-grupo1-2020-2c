@@ -56,5 +56,18 @@ describe MethodEnveloper do
       expect(pre_condition_called).to be_truthy
       expect(post_condition_called).to be_truthy
     end
+
+    it 'method_context should return a prototype that contains the arguments of the method' do
+      class Operation
+        def dividir(dividendo, divisor)
+          dividendo / divisor
+        end
+      end
+
+      method = Operation.instance_method :dividir
+      prototype = method_enveloper.send(:method_context, method, [4, 2])
+      expect(prototype.dividendo).to be 4
+      expect(prototype.divisor).to be 2
+    end
   end
 end
