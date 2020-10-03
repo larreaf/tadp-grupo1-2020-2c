@@ -2,6 +2,7 @@ require_relative '../spec_helper.rb'
 require_relative '../../lib/internal/errors/invariant_error'
 require_relative '../../lib/internal/errors/pre_condition_not_met_error'
 require_relative '../../lib/internal/errors/post_condition_not_met_error'
+require_relative '../../lib/application/pila'
 
 describe Pila do
   let(:pila) { Pila.new(1) }
