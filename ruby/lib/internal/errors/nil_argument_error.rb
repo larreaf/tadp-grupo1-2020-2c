@@ -1,0 +1,3 @@
+class NilArgumentError < StandardError
+end
+
