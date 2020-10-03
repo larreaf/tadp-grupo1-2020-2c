@@ -1,4 +1,4 @@
-require_relative 'tadp_contracts'
+require_relative '../framework/tadp_contracts'
 
 class Pila
   attr_accessor :current_node, :capacity
