@@ -61,7 +61,7 @@ module MethodEnveloper
     super + post_conditions
   end
 
-  protected def method_context(method, arguments)
+  protected def method_context(method, arguments, instance_context)
     prototype = super
     parameters = []
     method.parameters.each { |parameter| parameters.push(parameter[1]) unless parameter[1].nil? }

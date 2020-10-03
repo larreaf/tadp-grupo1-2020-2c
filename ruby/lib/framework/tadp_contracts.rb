@@ -1,17 +1,19 @@
 require_relative '../internal/modules/before_and_after_method_execution_module'
 require_relative '../internal/modules/method_enveloper_module'
 
-class Object
+class Class
   include MethodEnveloper
+end
 
+class Object
   class << self
-    def attr_reader(*method_names)
-      self.send(:add_getters, method_names)
+    def attr_reader(*several_variants)
+      self.send(:add_getters, several_variants)
       super
     end
 
-    def attr_accessor(*method_names)
-      self.send(:add_getters, method_names)
+    def attr_accessor(*several_variants)
+      self.send(:add_getters, several_variants)
       super
     end
   end

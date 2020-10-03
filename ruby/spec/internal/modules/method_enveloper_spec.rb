@@ -81,7 +81,7 @@ describe MethodEnveloper do
       end
 
       method = Operation.instance_method :dividir
-      prototype = method_enveloper.send(:method_context, method, [4, 2])
+      prototype = method_enveloper.send(:method_context, method, [4, 2], method_enveloper)
       expect(prototype.dividendo).to be 4
       expect(prototype.divisor).to be 2
     end

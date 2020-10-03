@@ -48,7 +48,7 @@ module BeforeAndAfterMethodExecution
     original_method = self.instance_method(method)
 
     self.define_method(method) do | *arguments |
-      context = self.method_context(original_method, arguments)
+      context = self.class.send(:method_context, original_method, arguments, self)
 
       self.class.send(:before_method_blocks_internal, method).each { |before_block| context.instance_eval &before_block }
 
@@ -71,8 +71,8 @@ module BeforeAndAfterMethodExecution
     self.after_method_blocks
   end
 
-  protected def method_context(method, arguments)
-    PrototypedObject.new(self)
+  protected def method_context(method, arguments, instance_context)
+    PrototypedObject.new(instance_context)
   end
 
 
