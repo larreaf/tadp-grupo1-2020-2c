@@ -22,7 +22,7 @@ describe MethodEnveloper do
       expect(conditions_envelopes.any?).to be_falsey
     end
 
-    it 'redefine_method_internal should call every before and after block with pre and post conditions' do
+    it 'redefine_method should call every before and after block with pre and post conditions' do
       before_method_called = false
       method_called = false
       after_method_called = false
@@ -37,15 +37,16 @@ describe MethodEnveloper do
       post_condition_proc = proc { post_condition_called = pre_condition_called }
 
       method_enveloper.class.before_each_call &before_method_proc
+      method_enveloper.class.post &post_condition_proc
       method_enveloper.class.pre &pre_condition_proc
-      method_enveloper.class.pre &post_condition_proc
+
       method_enveloper.define_method(:test) do
         method_called_proc.call
       end
 
-      method_enveloper.class.after_each_call &after_method_proc
+      method_enveloper.class.send(:redefine_method, :test)
 
-      method_enveloper.send(:redefine_method, :test)
+      method_enveloper.class.after_each_call &after_method_proc
 
       method_enveloper.test
 
@@ -54,6 +55,19 @@ describe MethodEnveloper do
       expect(after_method_called).to be_truthy
       expect(pre_condition_called).to be_truthy
       expect(post_condition_called).to be_truthy
+    end
+
+    it 'method_context should return a prototype that contains the arguments of the method' do
+      class Operation
+        def dividir(dividendo, divisor)
+          dividendo / divisor
+        end
+      end
+
+      method = Operation.instance_method :dividir
+      prototype = method_enveloper.send(:method_context, method, [4, 2])
+      expect(prototype.dividendo).to be 4
+      expect(prototype.divisor).to be 2
     end
   end
 end
