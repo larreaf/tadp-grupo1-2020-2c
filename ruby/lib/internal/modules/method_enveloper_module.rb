@@ -26,7 +26,6 @@ module MethodEnveloper
   end
 
   def pre(&before_block)
-    self
     pre_condition_block = proc { raise PreConditionNotMetError.new(before_block.source_location) unless self.instance_eval &before_block }
     self.push_restricted_proc(self.pre_conditions_blocks, 0, &pre_condition_block)
   end
@@ -60,7 +59,6 @@ module MethodEnveloper
     post_conditions = conditions_envelope == nil ? [] : conditions_envelope.post_conditions
     super + post_conditions
   end
-
 
   protected def method_context(method, arguments)
     prototype = super

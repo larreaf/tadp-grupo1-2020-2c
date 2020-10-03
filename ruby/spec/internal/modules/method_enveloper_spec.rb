@@ -56,5 +56,22 @@ describe MethodEnveloper do
       expect(pre_condition_called).to be_truthy
       expect(post_condition_called).to be_truthy
     end
+
+    it "pre should increase the size of pre_conditions_blocks" do
+      conditions_block = proc {true}
+
+      method_enveloper.class.pre &conditions_block
+
+      expect(method_enveloper.class.pre_conditions_blocks.size == 1).to be_truthy
+    end
+
+    it "post should increase the size of post_conditions_blocks" do
+      conditions_block = proc {false}
+
+      method_enveloper.class.post &conditions_block
+
+      expect(method_enveloper.class.post_conditions_blocks.size == 1).to be_truthy
+    end
+
   end
 end
