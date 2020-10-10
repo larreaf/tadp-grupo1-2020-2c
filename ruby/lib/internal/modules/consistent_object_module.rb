@@ -4,16 +4,11 @@ require_relative '../errors/invariant_error'
 module ConsistentObject
   def invariants
     @invariants ||= []
-    @invariants
   end
 
-  private def validate_invariants(context)
-    invariants.each do |invariant|
-      raise InvariantError.new(context) unless context.instance_eval(&invariant)
-    end
-  end
 
   def invariant(&block)
-    invariants.push(block)
+    invariant_validation = proc { raise InvariantError.new(self) unless self.instance_eval &block }
+    invariants.push(invariant_validation)
   end
 end

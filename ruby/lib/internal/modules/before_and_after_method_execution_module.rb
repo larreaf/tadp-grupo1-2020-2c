@@ -3,18 +3,19 @@ require_relative 'proc_arity_restrainer_module'
 require_relative '../classes/prototype'
 require_relative '../errors/invariant_error'
 
+class Object
+  attr_accessor :initialized
+end
+
 module BeforeAndAfterMethodExecution
   include ProcArityRestrainer
-  include ConsistentObject
 
   def before_method_blocks
     @before_methods_blocks ||= []
-    @before_methods_blocks
   end
 
   def after_method_blocks
     @after_methods_blocks ||= []
-    @after_methods_blocks
   end
 
   @redefinition_flag = nil
@@ -50,24 +51,26 @@ module BeforeAndAfterMethodExecution
     self.define_method(method) do | *arguments |
       context = self.class.send(:method_context, original_method, arguments, self)
 
-      self.class.send(:before_method_blocks_internal, method).each { |before_block| context.instance_eval &before_block }
+      initialized = self.initialized
+
+      self.class.send(:before_method_blocks_internal, method, initialized).each { |before_block| context.instance_eval &before_block }
 
       result = original_method.bind(context.original).call(*arguments)
 
-      self.class.send(:validate_invariants, context.original)
+      self.class.send(:after_method_blocks_internal, method, initialized).each { |after_block| context.instance_exec result, &after_block }
 
-      self.class.send(:after_method_blocks_internal, method).each { |after_block| context.instance_exec result, &after_block }
+      self.initialized = self.initialized || self.class.send(:get_conditions_envelope, :initialize).nil? || method == :initialize
       result
     end
 
     @redefinition_flag = nil
   end
 
-  protected def before_method_blocks_internal(method)
+  protected def before_method_blocks_internal(method, initialized)
     self.before_method_blocks
   end
 
-  protected def after_method_blocks_internal(method)
+  protected def after_method_blocks_internal(method, initialized)
     self.after_method_blocks
   end
 
@@ -78,7 +81,6 @@ module BeforeAndAfterMethodExecution
 
   private def getters
     @getters ||= []
-    @getters
   end
 
   private def add_getters(method_names)

@@ -6,23 +6,21 @@ require_relative '../errors/post_condition_not_met_error'
 
 module MethodEnveloper
   include BeforeAndAfterMethodExecution
+  include ConsistentObject
 
   @pre_conditions_blocks
   @post_conditions_blocks
 
   def pre_conditions_blocks
     @pre_conditions_blocks ||= []
-    @pre_conditions_blocks
   end
 
   def post_conditions_blocks
     @post_conditions_blocks ||= []
-    @post_conditions_blocks
   end
 
   def conditions_envelopes
     @conditions_envelopes ||= []
-    @conditions_envelopes
   end
 
   def pre(&before_block)
@@ -42,23 +40,26 @@ module MethodEnveloper
       conditions_envelopes.push(conditions_envelope)
     end
     conditions_envelope.supplant_conditions(pre_conditions_blocks, post_conditions_blocks)
-    super(method)
+    super
     @pre_conditions_blocks = []
     @post_conditions_blocks = []
   end
 
   #Por entrar en conflicto con el framework de testing
-  protected def before_method_blocks_internal(method)
+  protected def before_method_blocks_internal(method, initialized)
     conditions_envelope = self.send(:get_conditions_envelope, method)
     pre_conditions = conditions_envelope.nil? ? [] : conditions_envelope.pre_conditions
-    super + pre_conditions
+    return (super + pre_conditions) if method == :initialize || initialized
+    super
   end
 
   #Por entrar en conflicto con el framework de testing
-  protected def after_method_blocks_internal(method)
+  protected def after_method_blocks_internal(method, initialized)
+    invariants = self.send(:invariants)
     conditions_envelope = self.send(:get_conditions_envelope, method)
     post_conditions = conditions_envelope.nil? ? [] : conditions_envelope.post_conditions
-    super + post_conditions
+    return (super + invariants + post_conditions) if method == :initialize || initialized
+    super
   end
 
   protected def method_context(method, arguments, instance_context)

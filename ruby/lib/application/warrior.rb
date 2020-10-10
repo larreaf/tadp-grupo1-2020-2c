@@ -7,8 +7,8 @@ class Warrior
 
 
   def initialize(life, attack_points)
-    @life = life
-    @attack_points = attack_points
+    self.life = life
+    self.attack_points = attack_points
   end
 
   pre { warrior.attack_points > self.attack_points  }
