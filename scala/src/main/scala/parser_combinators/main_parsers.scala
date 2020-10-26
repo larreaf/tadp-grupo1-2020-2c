@@ -1,7 +1,7 @@
 package parser_combinators
 
 import parser_combinators.internal.cases.classes.{char, string}
-import parser_combinators.internal.cases.objects.digit
+import parser_combinators.internal.cases.objects.{digit, integer}
 
 object main_parsers extends App {
   val optionalChars = char('b') <|> char('e') <|> char('a')
@@ -16,7 +16,9 @@ object main_parsers extends App {
 
   val holaMundoParsed = holaMundoParsers("holamundo")
 
-  val l = char('l')("nene")
+  val ada = "-?\\d+".r.findFirstIn("asd-251a")
+
+  val l = integer("asda242")
 
   val dummyValue = 2
 }

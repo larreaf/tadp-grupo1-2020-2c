@@ -5,7 +5,7 @@ import parser_combinators.internal.mixins.StringParser
 import scala.util.Try
 
 case object anyChar extends StringParser[Char] {
-  override protected def result(originalString: String): Try[Char] = originalString match {
+  override protected def result(source: String): Try[Char] = source match {
     case string: String if string.length > 0 => Try(string.charAt(0))
     case _ => Try(throw new Error)
   }
