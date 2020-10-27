@@ -1,4 +1,4 @@
-package parser_combinators.internal.cases.objects
+package parser_combinators.internal
 
 import parser_combinators.internal.mixins.StringParser
 
