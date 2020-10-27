@@ -6,7 +6,7 @@ import scala.util.Try
 
 case object digit extends StringParser[Char] {
   override protected def result(source: String): Try[Char] = source match {
-    case string: String if string.exists(_.isDigit) => Try(string.find(c => c.isDigit).get)
+    case string: String if string.length > 0 && string.charAt(0).isDigit => Try(string.charAt(0))
     case _ => Try(throw new Error)
   }
 
