@@ -1,7 +1,7 @@
 package parser_combinators
 
 import parser_combinators.internal.cases.classes.{char, string}
-import parser_combinators.internal.cases.objects.{digit, integer}
+import parser_combinators.internal.{digit, double, integer}
 
 object main_parsers extends App {
   val optionalChars = char('b') <|> char('e') <|> char('a')
@@ -18,11 +18,17 @@ object main_parsers extends App {
 
   val ada = "-?\\d+".r.findFirstIn("asd-251a")
 
-  val l = integer("asda242")
+  val integerResult = integer("asda242")
 
   val kleeneDigits = char('a').+ <> char('b').+
 
   val result = kleeneDigits("aabb")
+
+  val result2 = double("A212.21A")
+
+  val result3 = double("A212.A")
+
+  val result4 = double("212.21")
 
   for (
     value <- result
