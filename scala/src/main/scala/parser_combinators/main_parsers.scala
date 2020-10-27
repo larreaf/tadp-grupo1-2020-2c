@@ -1,7 +1,8 @@
 package parser_combinators
 
 import parser_combinators.internal.cases.classes.{char, string}
-import parser_combinators.internal.{digit, double, integer}
+import parser_combinators.internal.cases.objects.{digit, double, integer}
+import parser_combinators.internal.integer
 
 object main_parsers extends App {
   val optionalChars = char('b') <|> char('e') <|> char('a')

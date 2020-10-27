@@ -2,7 +2,7 @@ package parser_combinators.internal.cases
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import parser_combinators.internal.double
+import parser_combinators.internal.cases.objects.double
 
 
 class DoubleSpec extends AnyFlatSpec with should.Matchers {

@@ -1,4 +1,4 @@
-package parser_combinators.internal
+package parser_combinators.internal.cases.objects
 
 import parser_combinators.internal.mixins.StringParser
 
@@ -14,7 +14,7 @@ case object digit extends StringParser[Char] {
     source.substring(source.indexOf(firstDigit(source)) + 1)
   }
 
-  protected def firstDigit(source: String): Char  = {
+  protected def firstDigit(source: String): Char = {
     source.find(c => c.isDigit).get
   }
 }
