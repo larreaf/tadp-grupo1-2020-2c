@@ -1,7 +1,7 @@
 package parser_combinators.internal.mixins
 
 import scala.util.{Failure, Success, Try}
-import parser_combinators.internal.cases.classes.{Husk, ParseResult}
+import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneParser}
 
 trait Parser[Source, Parsed] extends Function[Source, Try[ParseResult[Source, Parsed]]] {
   def apply (source: Source): Try[ParseResult[Source, Parsed]] = {
@@ -20,6 +20,10 @@ trait Parser[Source, Parsed] extends Function[Source, Try[ParseResult[Source, Pa
       val firstResult = this(source)
       Try((firstResult.get, parser(firstResult.get.remnant).get))
     }
+  }
+
+  def * = {
+    kleeneParser(this)
   }
 
   protected def result(source: Source): Try[Parsed]

@@ -20,5 +20,11 @@ object main_parsers extends App {
 
   val l = integer("asda242")
 
+  val adasda = digit.*("12351a512")
+
+  for (
+    value <- adasda
+  ) { print { value+ "\n" }}
+
   val dummyValue = 2
 }

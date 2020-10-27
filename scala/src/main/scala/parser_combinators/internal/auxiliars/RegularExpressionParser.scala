@@ -5,7 +5,7 @@ import parser_combinators.internal.mixins.StringParser
 import scala.util.Try
 import scala.util.matching.Regex
 
-abstract class regularExpressionParser[Parsed](regex: Regex) extends StringParser[Parsed] {
+abstract class RegularExpressionParser[Parsed](regex: Regex) extends StringParser[Parsed] {
   override protected def result(originalString: String): Try[Parsed] = originalString match {
     case string: String if this.findFirstIn(string).nonEmpty => Try(this.findFirstIn(string)
                                                                         .get
