@@ -4,7 +4,7 @@ import parser_combinators.internal.auxiliars.RegularExpressionParser
 
 import scala.util.matching.Regex
 
-case class char(character: Char) extends RegularExpressionParser[Char]( new Regex("-?"+character)) {}
+case class char(character: Char) extends RegularExpressionParser[String]( new Regex("-?"+character)) {}
 //case class char(character: Char) extends StringParser[Char]
 //{
 //  override protected def result(source: String): Try[Char] = source match {
