@@ -1,11 +1,10 @@
 package parser_combinators.internal.auxiliars
 
-import parser_combinators.internal.mixins.StringParser
-
 import scala.util.Try
 import scala.util.matching.Regex
+import parser_combinators.internal.mixins.Parser
 
-abstract class RegularExpressionParser[Parsed](regex: Regex) extends StringParser[Parsed] {
+abstract class RegularExpressionParser[Parsed](regex: Regex) extends Parser[Parsed] {
   override protected def result(originalString: String): Try[Parsed] = originalString match {
     case string: String if this.findFirstIn(string).nonEmpty => Try(this.findFirstIn(string)
                                                                         .get
@@ -13,7 +12,7 @@ abstract class RegularExpressionParser[Parsed](regex: Regex) extends StringParse
     case _ => Try(throw new Error)
   }
 
-  override protected def remnant(source: String): String = {
+  override def remnant(source: String): String = {
     val integer = this.findFirstIn(source).get
     source.substring(source.indexOf(integer) + integer.length)
   }

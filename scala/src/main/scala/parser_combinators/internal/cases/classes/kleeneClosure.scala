@@ -1,22 +1,14 @@
 package parser_combinators.internal.cases.classes
 
-import parser_combinators.internal.mixins.CombinableParser
+import parser_combinators.internal.auxiliars.{flatParsedResults, parseRecursively, remnantClosure}
+import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
 
-case class kleeneClosure[Source, Parsed](function: Function[Source, Try[ParseResult[Source, Parsed]]]) extends CombinableParser[Source, List[ParseResult[Source, Parsed]]] {
-  override def apply(source: Source): List[ParseResult[Source, Parsed]] = {
-      for {
-        parseResult <- this.parseRecursively(source)
-      } yield parseResult.get
+case class kleeneClosure[Parsed](function: Function[String, Try[ParseResult[Parsed]]]) extends Parser[List[Parsed]] {
+  override protected def result(source: String): Try[List[Parsed]] = {
+    Try(flatParsedResults(parseRecursively(source, function)))
   }
 
-  def parseRecursively(source: Source): List[Try[ParseResult[Source, Parsed]]] = {
-    Iterator.iterate(function(source))(parsed => function(parsed.get.remnant))
-            .takeWhile(tryResult =>  tryResult.isSuccess)
-            .toList
-  }
-
-  override def obtainRemnant(result: List[ParseResult[Source, Parsed]]): Source = result.last
-                                                                                        .remnant
+  override def remnant(source: String): String = remnantClosure(source, function)
 }

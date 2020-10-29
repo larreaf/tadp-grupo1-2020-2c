@@ -1,22 +1,18 @@
 package parser_combinators.internal.cases.classes
 
-import parser_combinators.internal.mixins.OptionParser
+import parser_combinators.internal.auxiliars.{flatParsedResults, parseRecursively, remnantClosure}
+import parser_combinators.internal.mixins.Parser
 
 import scala.util.{Failure, Success, Try}
 
-case class positiveClosure[Source, Parsed](kleeneClosure: kleeneClosure[Source, Parsed]) extends OptionParser[Source, List[ParseResult[Source, Parsed]]] {
-
-  def apply(source: Source): Try[List[ParseResult[Source, Parsed]]] = {
-    val result = Try(kleeneClosure.function(source).get)
+case class positiveClosure[Parsed](function: Function[String, Try[ParseResult[Parsed]]]) extends Parser[List[Parsed]] {
+  override protected def result(source: String): Try[List[Parsed]] =  {
+    val result = Try(function(source).get)
     result match {
-      case Success(_) => Try(kleeneClosure(source))
+      case Success(_) => Try(flatParsedResults(parseRecursively(source, function)))
       case Failure(exception) => Try(throw exception)
     }
   }
 
-  override def obtainRemnant(result: Try[List[ParseResult[Source, Parsed]]]): Source = result.get
-                                                                                             .last
-                                                                                             .remnant
-
-  override def <|>(optionParser: OptionParser[Source, List[ParseResult[Source, Parsed]]]): OptionParser[Source, List[ParseResult[Source, Parsed]]] = ListHusk((source: Source) => this(source).orElse(optionParser(source)))
+  override def remnant(source: String): String = remnantClosure(source, function)
 }

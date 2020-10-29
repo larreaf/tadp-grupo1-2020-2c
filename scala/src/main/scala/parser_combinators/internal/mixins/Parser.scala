@@ -4,24 +4,31 @@ import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosu
 
 import scala.util.{Failure, Success, Try}
 
-trait Parser[Source, Parsed] extends OptionParser[Source, ParseResult[Source, Parsed]] {
-  def apply (source: Source): Try[ParseResult[Source, Parsed]] = {
+trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
+  def apply (source: String): Try[ParseResult[Parsed]] = {
     this.result(source) match {
       case Success(value) => Try(ParseResult(value, this.remnant(source)))
       case Failure(exception) => Try(throw exception)
     }
   }
 
-  override def <|>(optionParser: OptionParser[Source, ParseResult[Source, Parsed]]): OptionParser[Source, ParseResult[Source, Parsed]] = Husk((source: Source) => this(source).orElse(optionParser(source)))
+  def <|>(optionParser: Parser[Parsed]): Parser[Parsed] = Husk((source: String) => this(source).orElse(optionParser(source)))
 
-  def * : kleeneClosure[Source, Parsed] = kleeneClosure(this)
+  def <> (parser: Parser[Parsed]): Function[String, Try[(Parsed, Parsed)]] = {
+    source: String => {
+      val firstResult = this(source)
+      Try((firstResult.get.parsed, parser(this.obtainRemnant(firstResult)).get.parsed))
+    }
+  }
 
-  def + : positiveClosure[Source, Parsed] = positiveClosure(kleeneClosure(this))
+  def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
-  protected def result(source: Source): Try[Parsed]
+  def + : positiveClosure[Parsed] = positiveClosure(this)
 
-  protected def remnant(source: Source): Source
+  protected def result(source: String): Try[Parsed]
 
-  override def obtainRemnant(result: Try[ParseResult[Source, Parsed]]): Source = result.get
-                                                                                       .remnant
+  def remnant(source: String): String
+
+  def obtainRemnant(result: Try[ParseResult[Parsed]]): String = result.get
+                                                                      .remnant
 }

@@ -10,6 +10,8 @@ object main_parsers extends App {
 
   val combinatedChars = char('b') <> char('v')
 
+  val a = char('a')
+
   val digitResult = digit("CA2O")
 
   val holaMundoParsers = string("hola") <> string("mundo")
@@ -20,8 +22,7 @@ object main_parsers extends App {
 
   val l = integer("asda242")
 
-  val kleeneDigits = char('a').+ <> char('b').+
-
+  val kleeneDigits = char('a').* <> char('b').*
   val result = kleeneDigits("aabb")
 
   for (

@@ -1,3 +1,3 @@
 package parser_combinators.internal.cases.classes
 
-case class ParseResult[Source, Parsed](parsed: Parsed, remnant: Source)
+case class ParseResult[Parsed](parsed: Parsed, remnant: String)
