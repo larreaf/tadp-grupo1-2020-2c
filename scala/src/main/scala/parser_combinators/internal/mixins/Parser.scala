@@ -21,6 +21,30 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
     }
   }
 
+  def ~> (parser: Parser[Parsed]): Function[String, Try[ParseResult[Parsed]]] = {
+    source: String => {
+      val firstResult = this(source)
+
+      firstResult match {
+        case Success(value) => Try(parser(this.obtainRemnant(firstResult)).get)
+        case Failure(exception) => Try(throw exception)
+      }
+
+    }
+  }
+  def <~ (parser: Parser[Parsed]): Function[String, Try[ParseResult[Parsed]]] = {
+    source: String => {
+      val firstResult = this(source)
+      val secondResult = Try(parser(this.obtainRemnant(firstResult)).get)
+
+      secondResult match {
+        case Success(value) => Try(firstResult.get)
+        case Failure(exception) => Try(throw exception)
+      }
+
+    }
+  }
+
   def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
   def + : positiveClosure[Parsed] = positiveClosure(this)

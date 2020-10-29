@@ -39,4 +39,52 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assert(combinedChars.isFailure)
   }
 
+  "RightMost" should "success if both parser succeed " in {
+    val RightMostOp = char('c') ~> char('a')
+    val result = RightMostOp("cava")
+    assert(result.isSuccess)
+  }
+
+  it should "return the second parser value" in {
+    val RightMostOp = char('c') ~> char('a')
+    val result = RightMostOp("cava")
+    assertResult("a") (result.get.parsed)
+  }
+
+  it should "fail if first parser failed" in {
+    val RightMostOp = char('h') ~> char('a')
+    val result = RightMostOp("cava")
+    assert(result.isFailure)
+  }
+
+  it should "fail if second parser failed" in {
+    val RightMostOp = char('c') ~> char('h')
+    val result = RightMostOp("cava")
+    assert(result.isFailure)
+  }
+
+  "LeftMost" should "success if both parser succeed " in {
+    val LeftMostOp = char('c') <~ char('a')
+    val result = LeftMostOp("cava")
+    assert(result.isSuccess)
+  }
+
+  it should "return the second parser value" in {
+    val LeftMostOp = char('c') <~ char('a')
+    val result = LeftMostOp("cava")
+    assertResult("c") (result.get.parsed)
+  }
+
+  it should "fail if first parser failed" in {
+    val LeftMostOp = char('h') <~ char('a')
+    val result = LeftMostOp("cava")
+    assert(result.isFailure)
+  }
+
+  it should "fail if second parser failed" in {
+    val LeftMostOp = char('c') <~ char('h')
+    val result = LeftMostOp("cava")
+    assert(result.isFailure)
+  }
+
 }
