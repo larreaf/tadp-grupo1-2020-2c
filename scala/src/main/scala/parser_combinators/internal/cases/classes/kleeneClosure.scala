@@ -6,7 +6,7 @@ import parser_combinators.internal.mixins.Parser
 import scala.util.Try
 
 case class kleeneClosure[Parsed](function: Function[String, Try[ParseResult[Parsed]]]) extends Parser[List[Parsed]] {
-  override protected def result(source: String): Try[List[Parsed]] = {
+  override def result(source: String): Try[List[Parsed]] = {
     Try(flatParsedResults(parseRecursively(source, function)))
   }
 

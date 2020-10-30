@@ -53,13 +53,26 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
     }
   }
 
+  def opt: Parser[Option[Parsed]] = {
+    Husk(source => {
+      this.result(source) match {
+        case Success(result) => Try(ParseResult(Some(result), this.remnant(source)))
+        case Failure(_) => Try(ParseResult(None, source))
+      }
+    })
+  }
+
   def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
   def + : positiveClosure[Parsed] = positiveClosure(this)
 
   def sepBy[OtherParsed](parser: Parser[OtherParsed]): positiveClosure[Parsed] = positiveClosure(mixedParser(this, parser))
 
-  protected def result(source: String): Try[Parsed]
+  def map[Destination](function: Function[Parsed, Destination]): Function[String, Try[Destination]] = {
+    source: String => this(source).map(parseResult => function(parseResult.parsed))
+  }
+
+  def result(source: String): Try[Parsed]
 
   def remnant(source: String): String
 
