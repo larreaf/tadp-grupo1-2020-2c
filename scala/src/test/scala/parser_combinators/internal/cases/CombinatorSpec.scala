@@ -39,7 +39,7 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assert(combinedChars.isFailure)
   }
 
-  "RightMost" should "success if both parser succeed " in {
+  "RightMost" should "succeed if both parser succeeded " in {
     val RightMostOp = char('c') ~> char('a')
     val result = RightMostOp("cava")
     assert(result.isSuccess)
@@ -63,13 +63,13 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assert(result.isFailure)
   }
 
-  "LeftMost" should "success if both parser succeed " in {
+  "LeftMost" should "succeed if both parser succeeded " in {
     val LeftMostOp = char('c') <~ char('a')
     val result = LeftMostOp("cava")
     assert(result.isSuccess)
   }
 
-  it should "return the second parser value" in {
+  it should "return the first parser value" in {
     val LeftMostOp = char('c') <~ char('a')
     val result = LeftMostOp("cava")
     assertResult("c") (result.get.parsed)
@@ -87,4 +87,24 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assert(result.isFailure)
   }
 
+  "kleeneClousure" should "succeed" in {
+    val kleeneDigits = char('a').*
+    val result = kleeneDigits("aabb")
+    assert(result.isSuccess)
+  }
+  it should "return the value n-times" in {
+    val kleeneDigits = char('a').*
+    val result = kleeneDigits("aaabb")
+    assertResult(3)(result.get.parsed.length)
+    assert(result.get.parsed
+                     .foldLeft(true)((boolean, charParsed) => "a".equals(charParsed))
+    )
+  }
+
+  it should "succeed if no value was parse" in {
+    val kleeneDigits = char('z').*
+    val result = kleeneDigits("no encuentra ninguno")
+    assert(result.isSuccess)
+    assertResult(0)(result.get.parsed.length)
+  }
 }
