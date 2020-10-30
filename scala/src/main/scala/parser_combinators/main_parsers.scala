@@ -35,5 +35,9 @@ object main_parsers extends App {
     value <- result
   ) { print { value + "\n" }}
 
+  val integerSepByChar = integer.sepBy(char('-'))
+
+  val result5 = integerSepByChar("1234 5678")
+
   val dummyValue = 2
 }

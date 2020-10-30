@@ -1,6 +1,6 @@
 package parser_combinators.internal.mixins
 
-import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, positiveClosure}
+import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, mixedParser, positiveClosure}
 
 import scala.util.{Failure, Success, Try}
 
@@ -44,15 +44,11 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
     }
   }
 
-  def * : kleeneClosure[Parsed] = kleeneClosure(this, this)
+  def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
-  def + : positiveClosure[Parsed] = positiveClosure(this, this)
+  def + : positiveClosure[Parsed] = positiveClosure(this)
 
-  def sepBy(parser: Parser[Any]): positiveClosure[Parsed] = positiveClosure(this, (source: String) => {
-    val remnant = parser(source).get
-                                .remnant
-    this(remnant)
-  })
+  def sepBy[OtherParsed](parser: Parser[OtherParsed]): positiveClosure[Parsed] = positiveClosure(mixedParser(this, parser))
 
   protected def result(source: String): Try[Parsed]
 
