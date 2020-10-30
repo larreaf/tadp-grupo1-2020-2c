@@ -44,6 +44,15 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
     }
   }
 
+  def satisfies(condition: Function[Parsed, Boolean]): Function[String, Option[Parser[Parsed]]] = {
+    source =>  {
+      this(source) match {
+        case Success(parseResult) if condition(parseResult.parsed) => Some(this)
+        case Failure(_) => None
+      }
+    }
+  }
+
   def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
   def + : positiveClosure[Parsed] = positiveClosure(this)
