@@ -26,7 +26,7 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
       val firstResult = this(source)
 
       firstResult match {
-        case Success(value) => Try(parser(this.obtainRemnant(firstResult)).get)
+        case Success(_) => Try(parser(this.obtainRemnant(firstResult)).get)
         case Failure(exception) => Try(throw exception)
       }
 
@@ -38,16 +38,21 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
       val secondResult = Try(parser(this.obtainRemnant(firstResult)).get)
 
       secondResult match {
-        case Success(value) => Try(firstResult.get)
+        case Success(_) => Try(firstResult.get)
         case Failure(exception) => Try(throw exception)
       }
-
     }
   }
 
-  def * : kleeneClosure[Parsed] = kleeneClosure(this)
+  def * : kleeneClosure[Parsed] = kleeneClosure(this, this)
 
-  def + : positiveClosure[Parsed] = positiveClosure(this)
+  def + : positiveClosure[Parsed] = positiveClosure(this, this)
+
+  def sepBy(parser: Parser[Any]): positiveClosure[Parsed] = positiveClosure(this, (source: String) => {
+    val remnant = parser(source).get
+                                .remnant
+    this(remnant)
+  })
 
   protected def result(source: String): Try[Parsed]
 
