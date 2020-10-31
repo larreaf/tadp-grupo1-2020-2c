@@ -6,7 +6,7 @@ import scala.util.{Failure, Success, Try}
 
 trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
   def apply (source: String): Try[ParseResult[Parsed]] = {
-    this.result(source) match {
+    this.result(source) match { // cambiar por operaciones monádicas.
       case Success(value) => Try(ParseResult(value, this.remnant(source)))
       case Failure(exception) => Try(throw exception)
     }
@@ -14,7 +14,13 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
 
   def <|>(optionParser: Parser[Parsed]): Parser[Parsed] = Husk((source: String) => this(source).orElse(optionParser(source)))
 
-  def <> (parser: Parser[Parsed]): Concat[Parsed] = Concat(this, parser)
+  def <> (parser: Parser[Parsed]): Husk[(Parsed, Parsed)] = Husk((source: String) => {
+    val firstResult = this(source)
+    Try(ParseResult(
+          (firstResult.get.parsed, parser(this.obtainRemnant(firstResult)).get.parsed),
+          parser(this.obtainRemnant(firstResult)).get.remnant
+    ))
+  })
 
   def ~> (parser: Parser[Parsed]): RightMost[Parsed] = RightMost(this, parser)
 
@@ -29,11 +35,11 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
     }
   }
 
-  def opt: Parser[Option[Parsed]] = {
+  def opt: Parser[String] = {
     Husk(source => {
       this.result(source) match {
-        case Success(result) => Try(ParseResult(Some(result), this.remnant(source)))
-        case Failure(_) => Try(ParseResult(None, source))
+        case Success(result: String) => Try(ParseResult(result, this.remnant(source)))
+        case Failure(_) => Try(ParseResult("", source))
       }
     })
   }

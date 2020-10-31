@@ -128,4 +128,17 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
 
   }
 
+  "opt" should "succeed if the value was parsed" in {
+    val talVezIn = string("in").opt
+    val result = talVezIn("infija")
+    assert(result.isSuccess)
+    assertResult(result.get.parsed)
+  }
+
+  it should "succeed if no value was parsed" in {
+    val talVezIn = string("in").opt
+    val result = talVezIn("fija")
+    assert(result.isSuccess)
+  }
+
 }

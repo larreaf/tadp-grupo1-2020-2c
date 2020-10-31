@@ -72,7 +72,7 @@ class SimpleParserSpec extends AnyFlatSpec with should.Matchers  {
     assert(result.isFailure)
   }
 
-  "digit" should "succeed if any digit before text is parsed" in {
+  it should "succeed if any digit before text is parsed" in {
     val someDigit = "2"
     val someText = someDigit + "this is text"
     val result = digit(someText)
