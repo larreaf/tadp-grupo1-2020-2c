@@ -14,8 +14,7 @@ abstract class RegularExpressionParser[Parsed](regex: Regex) extends Parser[Pars
   }
 
   override def remnant(source: String): String = {
-    val integer = this.findFirstIn(source).get
-    source.substring(source.indexOf(integer) + integer.length)
+    source.substring(this.findFirstIn(source).get.length)
   }
 
   private def findFirstIn(string: String): Option[String] = this.regex
