@@ -1,6 +1,6 @@
 package parser_combinators.internal.mixins
 
-import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, mixedParser, positiveClosure}
+import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, mixedParser, positiveClosure, RightMost, LeftMost}
 
 import scala.util.{Failure, Success, Try}
 
@@ -21,28 +21,9 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
     }
   }
 
-  def ~> (parser: Parser[Parsed]): Function[String, Try[ParseResult[Parsed]]] = {
-    source: String => {
-      val firstResult = this(source)
+  def ~> (parser: Parser[Parsed]): RightMost[Parsed] = RightMost(this, parser)
 
-      firstResult match {
-        case Success(_) => Try(parser(this.obtainRemnant(firstResult)).get)
-        case Failure(exception) => Try(throw exception)
-      }
-
-    }
-  }
-  def <~ (parser: Parser[Parsed]): Function[String, Try[ParseResult[Parsed]]] = {
-    source: String => {
-      val firstResult = this(source)
-      val secondResult = Try(parser(this.obtainRemnant(firstResult)).get)
-
-      secondResult match {
-        case Success(_) => Try(firstResult.get)
-        case Failure(exception) => Try(throw exception)
-      }
-    }
-  }
+  def <~ (parser: Parser[Parsed]): LeftMost[Parsed] = LeftMost(this, parser)
 
   def satisfies(condition: Function[Parsed, Boolean]): Function[String, Option[Parser[Parsed]]] = {
     source =>  {

@@ -32,7 +32,7 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assertResult("c")(combinedChars.get._1)
     assertResult("a")(combinedChars.get._2)
   }
-  
+
   it should "fail if a parser failed" in {
     val optionalChars = char('h') <> char('z')
     val combinedChars = optionalChars("cava")
@@ -63,6 +63,12 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assert(result.isFailure)
   }
 
+  it should "return the second parser remnant" in {
+    val RightMostOp = char('c') ~> char('a')
+    val result = RightMostOp("cavas")
+    assertResult("vas") (result.get.remnant)
+  }
+
   "LeftMost" should "succeed if both parser succeeded " in {
     val LeftMostOp = char('c') <~ char('a')
     val result = LeftMostOp("cava")
@@ -87,6 +93,12 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assert(result.isFailure)
   }
 
+  it should "return the first parser remnant" in {
+    val LeftMostOp = char('c') <~ char('a')
+    val result = LeftMostOp("cavas")
+    assertResult("avas") (result.get.remnant)
+  }
+
   "kleeneClousure" should "succeed" in {
     val kleeneDigits = char('a').*
     val result = kleeneDigits("aabb")
@@ -107,4 +119,13 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     assert(result.isSuccess)
     assertResult(0)(result.get.parsed.length)
   }
+
+
+  "Combine more parsers" should "succeed" in {
+    val parser = (char('c') ~> char('h')) <> char('a')
+    val result = parser("chau")
+    assert(result.isSuccess)
+
+  }
+
 }
