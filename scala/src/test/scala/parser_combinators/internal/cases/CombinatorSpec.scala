@@ -29,8 +29,8 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     val optionalChars = char('c') <> char('a')
     val combinedChars = optionalChars("cava")
     assert(combinedChars.isSuccess)
-    assertResult("c")(combinedChars.get._1)
-    assertResult("a")(combinedChars.get._2)
+    assertResult("c")(combinedChars.get.parsed._1)
+    assertResult("a")(combinedChars.get.parsed._2)
   }
 
   it should "fail if a parser failed" in {

@@ -1,6 +1,6 @@
 package parser_combinators.internal.mixins
 
-import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, mixedParser, positiveClosure, RightMost, LeftMost}
+import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, mixedParser, positiveClosure, RightMost, LeftMost, Concat}
 
 import scala.util.{Failure, Success, Try}
 
@@ -14,12 +14,7 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
 
   def <|>(optionParser: Parser[Parsed]): Parser[Parsed] = Husk((source: String) => this(source).orElse(optionParser(source)))
 
-  def <> (parser: Parser[Parsed]): Function[String, Try[(Parsed, Parsed)]] = {
-    source: String => {
-      val firstResult = this(source)
-      Try((firstResult.get.parsed, parser(this.obtainRemnant(firstResult)).get.parsed))
-    }
-  }
+  def <> (parser: Parser[Parsed]): Concat[Parsed] = Concat(this, parser)
 
   def ~> (parser: Parser[Parsed]): RightMost[Parsed] = RightMost(this, parser)
 
