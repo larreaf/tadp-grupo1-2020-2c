@@ -7,14 +7,14 @@ import parser_combinators.internal.cases.classes._
 class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
   "OR Combinator" should "succeed if the first parser succeeded" in {
     val optionalChars = char('b') <|> char('a')
-    val resultOptionalsChars = optionalChars("cava")
+    val resultOptionalsChars = optionalChars("ave")
     assert(resultOptionalsChars.isSuccess)
     assertResult("a")(resultOptionalsChars.get.parsed)
   }
 
   it should "succeed if last parser succeeded" in {
     val optionalChars = char('b') <|> char('e') <|> char('a')
-    val resultOptionalsChars = optionalChars("cava")
+    val resultOptionalsChars = optionalChars("ave")
     assert(resultOptionalsChars.isSuccess)
     assertResult("a")(resultOptionalsChars.get.parsed)
   }

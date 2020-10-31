@@ -23,7 +23,7 @@ class SimpleParserSpec extends AnyFlatSpec with should.Matchers  {
   it should "succeed and leave a remnant if a decimal within a text is parsed" in {
     val remnant = "hola soy un remanente"
     val doubleString = "212.45001"
-    val textToParse = "texto adicional" + doubleString + remnant
+    val textToParse = doubleString + remnant
     val result = double(textToParse)
     assert(result.isSuccess)
     assertResult(doubleString)(result.get.parsed)
@@ -65,9 +65,16 @@ class SimpleParserSpec extends AnyFlatSpec with should.Matchers  {
     assert(result.isFailure)
   }
 
-  "digit" should "succeed if any digit within text is parsed" in {
+  "digit" should "succeed if any digit within text isn't parsed" in {
     val someDigit = "2"
     val someText = "this is text" + someDigit + "this is text"
+    val result = digit(someText)
+    assert(result.isFailure)
+  }
+
+  "digit" should "succeed if any digit before text is parsed" in {
+    val someDigit = "2"
+    val someText = someDigit + "this is text"
     val result = digit(someText)
     assert(result.isSuccess)
     assertResult(someDigit)(result.get.parsed)
@@ -81,7 +88,7 @@ class SimpleParserSpec extends AnyFlatSpec with should.Matchers  {
 
   "char" should "succeed if the character appears inside the text parsed" in {
     val character = 'W'
-    val result = char(character) ("Hello World!")
+    val result = char(character) ("World!")
     assert(result.isSuccess)
     assertResult(character.toString)(result.get.parsed)
   }

@@ -18,7 +18,7 @@ object main_parsers extends App {
 
   val holaMundoParsed = holaMundoParsers("holamundo")
 
-  val ada = "-?\\d+".r.findFirstIn("asd-251a")
+  val ada = "^-?\\d+$".r.findFirstIn("asd-251a")
 
   val integerResult = integer("asda242")
 
@@ -40,4 +40,6 @@ object main_parsers extends App {
   val result5 = integerSepByChar("1234-5678")
 
   val dummyValue = 2
+
+
 }

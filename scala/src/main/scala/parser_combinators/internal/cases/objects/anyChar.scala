@@ -2,7 +2,7 @@ package parser_combinators.internal.cases.objects
 
 import parser_combinators.internal.auxiliars.RegularExpressionParser
 
-case object anyChar extends RegularExpressionParser[Char]("-?\\w".r) {}
+case object anyChar extends RegularExpressionParser[Char]("^-?\\w".r) {}
 
 //case object anyChar extends StringParser[Char] {
 //  override protected def result(source: String): Try[Char] = source match {
