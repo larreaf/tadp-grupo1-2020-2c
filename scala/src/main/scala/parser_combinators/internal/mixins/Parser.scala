@@ -1,27 +1,22 @@
 package parser_combinators.internal.mixins
 
-import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, mixedParser, positiveClosure, RightMost, LeftMost, Concat}
+import parser_combinators.internal.cases.classes._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
-  def apply (source: String): Try[ParseResult[Parsed]] = {
-    this.result(source) match { // cambiar por operaciones monádicas.
-      case Success(value) => Try(ParseResult(value, this.remnant(source)))
-      case Failure(exception) => Try(throw exception)
-    }
-  }
+  def apply (source: String): Try[ParseResult[Parsed]]
 
   def <|>(optionParser: Parser[Parsed]): Parser[Parsed] = Husk((source: String) => this(source).orElse(optionParser(source)))
 
-  def <> (parser: Parser[Parsed]): Husk[(Parsed, Parsed)] = Husk((source: String) => {
-    val firstResult = this(source)
-    Try(ParseResult(
-          (firstResult.get.parsed, parser(this.obtainRemnant(firstResult)).get.parsed),
-          parser(this.obtainRemnant(firstResult)).get.remnant
-    ))
+  def <>[OtherParsed] (parser: Parser[OtherParsed]): Husk[(Parsed, OtherParsed)] = Husk((source: String) => {
+    this(source).map(parseResult => {
+      val secondParseResult = parser(parseResult.remnant).get
+      ParseResult((parseResult.parsed, secondParseResult.parsed), secondParseResult.remnant)
+    })
   })
 
+  /*
   def ~> (parser: Parser[Parsed]): RightMost[Parsed] = RightMost(this, parser)
 
   def <~ (parser: Parser[Parsed]): LeftMost[Parsed] = LeftMost(this, parser)
@@ -43,7 +38,7 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
       }
     })
   }
-
+*/
   def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
   def + : positiveClosure[Parsed] = positiveClosure(this)
@@ -53,11 +48,4 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
   def map[Destination](function: Function[Parsed, Destination]): Function[String, Try[Destination]] = {
     source: String => this(source).map(parseResult => function(parseResult.parsed))
   }
-
-  def result(source: String): Try[Parsed]
-
-  def remnant(source: String): String
-
-  def obtainRemnant(result: Try[ParseResult[Parsed]]): String = result.get
-                                                                      .remnant
 }
