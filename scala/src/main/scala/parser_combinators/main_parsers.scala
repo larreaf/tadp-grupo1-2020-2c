@@ -1,45 +1,16 @@
 package parser_combinators
 
-import parser_combinators.internal.cases.classes.{char, string}
-import parser_combinators.internal.cases.objects.{digit, double, integer}
+import parser_combinators.internal.cases.classes.char
+import parser_combinators.internal.cases.objects.double
 
 object main_parsers extends App {
-  val optionalChars = char('b') <|> char('e') <|> char('c')
+  val a = char('a') <|> char('b') <|> char('c')
 
-  val resultOptionalsChars = optionalChars("cava")
+  val b = char('a').opt ~> char('b')
 
-  val combinatedChars = char('b') <> char('v')
+  val e = b("ab")
 
-  val a = char('a')
+  val number = double("-013.32")
 
-  val digitResult = digit("CA2O")
-
-  val holaMundoParsers = string("hola") <> string("mundo")
-
-  val holaMundoParsed = holaMundoParsers("holamundo")
-
-  val ada = "^-?\\d+$".r.findFirstIn("asd-251a")
-
-  val integerResult = integer("asda242")
-
-  val kleeneDigits = char('a').* <> char('b').*
-  val result = kleeneDigits("aabb")
-
-  val result2 = double("A212.21A")
-
-  val result3 = double("A212.A")
-
-  val result4 = double("212.21")
-
-  for (
-    value <- result
-  ) { print { value + "\n" }}
-
-  val integerSepByChar = integer.sepBy(char('-'))
-
-  val result5 = integerSepByChar("1234-5678")
-
-  val dummyValue = 2
-
-
+  val dummyImplicit = 2
 }

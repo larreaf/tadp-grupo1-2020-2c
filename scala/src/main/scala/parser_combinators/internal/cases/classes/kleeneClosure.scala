@@ -5,7 +5,7 @@ import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
 
-case class kleeneClosure[Parsed](function: Function[String, Try[ParseResult[Parsed]]]) extends Parser[List[Parsed]] {
+case class kleeneClosure[Parsed](function: Parser[Parsed]) extends Parser[List[Parsed]] {
   override def apply(source: String): Try[ParseResult[List[Parsed]]] = {
     val parsedResults = parseRecursively(source, function)
     val parsedValues = parsedResults.map(parseResult => parseResult.get.parsed)

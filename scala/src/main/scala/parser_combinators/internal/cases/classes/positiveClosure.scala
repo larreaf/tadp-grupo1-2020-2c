@@ -1,18 +1,18 @@
 package parser_combinators.internal.cases.classes
 
-import parser_combinators.internal.auxiliars.{flatParsedResults, parseRecursively, remnantClosure}
 import parser_combinators.internal.mixins.Parser
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
-case class positiveClosure[Parsed](function: Function[String, Try[ParseResult[Parsed]]]) extends Parser[List[Parsed]] {
-  override def result(source: String): Try[List[Parsed]] =  {
-    val result = Try(function(source).get)
-    result match {
-      case Success(_) => Try(flatParsedResults(parseRecursively(source, function)))
-      case Failure(exception) => Try(throw exception)
-    }
+case class positiveClosure[Parsed](parser: Parser[Parsed]) extends Parser[List[Parsed]] {
+
+  val innerParser: Parser[(Parsed, List[Parsed])] = parser <> kleeneClosure(parser)
+
+  override def apply(source: String): Try[ParseResult[List[Parsed]]] = {
+    this.innerParser(source)
+        .map(combinedParseResult => {
+          val parsedTuple = combinedParseResult.parsed
+          ParseResult(parsedTuple._1 +: parsedTuple._2, combinedParseResult.remnant)
+        })
   }
-
-  override def remnant(source: String): String = remnantClosure(source, function)
 }

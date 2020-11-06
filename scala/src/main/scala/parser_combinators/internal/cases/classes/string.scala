@@ -9,6 +9,5 @@ case class string(expected: String) extends Parser[String] {
     case string: String if string.startsWith(expected) => Try(ParseResult(expected, source.substring(expected.length)))
     case _ => Try(throw new Error)
   }
-
 }
 

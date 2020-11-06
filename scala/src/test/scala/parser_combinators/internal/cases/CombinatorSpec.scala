@@ -9,14 +9,14 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     val optionalChars = char('b') <|> char('a')
     val resultOptionalsChars = optionalChars("ave")
     assert(resultOptionalsChars.isSuccess)
-    assertResult("a")(resultOptionalsChars.get.parsed)
+    assertResult('a')(resultOptionalsChars.get.parsed)
   }
 
   it should "succeed if last parser succeeded" in {
     val optionalChars = char('b') <|> char('e') <|> char('a')
     val resultOptionalsChars = optionalChars("ave")
     assert(resultOptionalsChars.isSuccess)
-    assertResult("a")(resultOptionalsChars.get.parsed)
+    assertResult('a')(resultOptionalsChars.get.parsed)
   }
 
   it should "fail if all parsers failed" in {
@@ -29,8 +29,8 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     val optionalChars = char('c') <> char('a')
     val combinedChars = optionalChars("cava")
     assert(combinedChars.isSuccess)
-    assertResult("c")(combinedChars.get.parsed._1)
-    assertResult("a")(combinedChars.get.parsed._2)
+    assertResult('c')(combinedChars.get.parsed._1)
+    assertResult('a')(combinedChars.get.parsed._2)
   }
 
   it should "fail if a parser failed" in {
@@ -48,7 +48,7 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
   it should "return the second parser value" in {
     val RightMostOp = char('c') ~> char('a')
     val result = RightMostOp("cava")
-    assertResult("a") (result.get.parsed)
+    assertResult('a') (result.get.parsed)
   }
 
   it should "fail if first parser failed" in {
@@ -71,14 +71,14 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
 
   "LeftMost" should "succeed if both parser succeeded " in {
     val LeftMostOp = char('c') <~ char('a')
-    val result = LeftMostOp("cava")
+    val result = LeftMostOp("acva")
     assert(result.isSuccess)
   }
 
   it should "return the first parser value" in {
     val LeftMostOp = char('c') <~ char('a')
-    val result = LeftMostOp("cava")
-    assertResult("c") (result.get.parsed)
+    val result = LeftMostOp("acva")
+    assertResult('c') (result.get.parsed)
   }
 
   it should "fail if first parser failed" in {
@@ -95,8 +95,8 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
 
   it should "return the first parser remnant" in {
     val LeftMostOp = char('c') <~ char('a')
-    val result = LeftMostOp("cavas")
-    assertResult("avas") (result.get.remnant)
+    val result = LeftMostOp("acvas")
+    assertResult("vas") (result.get.remnant)
   }
 
   "kleeneClousure" should "succeed" in {
@@ -109,7 +109,7 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     val result = kleeneDigits("aaabb")
     assertResult(3)(result.get.parsed.length)
     assert(result.get.parsed
-                     .foldLeft(true)((boolean, charParsed) => "a".equals(charParsed))
+                     .foldLeft(true)((boolean, charParsed) => 'a'.equals(charParsed))
     )
   }
 
@@ -132,7 +132,6 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     val talVezIn = string("in").opt
     val result = talVezIn("infija")
     assert(result.isSuccess)
-    assertResult(result.get.parsed)
   }
 
   it should "succeed if no value was parsed" in {
@@ -140,5 +139,4 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
     val result = talVezIn("fija")
     assert(result.isSuccess)
   }
-
 }
