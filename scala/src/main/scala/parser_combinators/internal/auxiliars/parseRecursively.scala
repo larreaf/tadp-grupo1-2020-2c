@@ -6,7 +6,7 @@ import parser_combinators.internal.mixins.Parser
 
 case object parseRecursively {
   def apply[Parsed](source: String, parser: Parser[Parsed]): List[Try[ParseResult[Parsed]]] = {
-    Iterator.iterate(parser(source))(parsed => if (parsed.get.remnant.isEmpty) Try(throw new Error) else parser(parsed.get.remnant))
+    Iterator.iterate(parser(source))(parsed => parser(parsed.get.remnant))
             .takeWhile(tryResult =>  tryResult.isSuccess)
             .toList
   }

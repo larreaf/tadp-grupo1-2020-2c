@@ -16,9 +16,9 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]] {
     })
   }
 
-  def ~>[OtherParsed](parser: Parser[OtherParsed]): Parser[OtherParsed] = sequentialParse(this, parser)
+  def ~>[OtherParsed](parser: Parser[OtherParsed]): Parser[OtherParsed] = sequentialParse[OtherParsed, OtherParsed](parser, _._2)
 
-  def <~[OtherParsed](parser: Parser[OtherParsed]): Parser[Parsed] = sequentialParse(parser, this)
+  def <~[OtherParsed](parser: Parser[OtherParsed]): Parser[Parsed] = sequentialParse[OtherParsed, Parsed](parser, _._1)
 
   def satisfies(condition: Function[Parsed, Boolean]): Function[String, Option[Parser[Parsed]]] = {
     source =>  {
@@ -37,7 +37,15 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]] {
     }
   }
 
-  def sepBy[OtherParsed](parser: Parser[OtherParsed]): positiveClosure[Parsed] = positiveClosure(this <~ parser)
+  //TODO: Corregir bug de parseo, debería permitir un parseo aunque no exista el separador, se puede probar este caso en main_figure_parsers, el parser de group
+  def sepBy[OtherParsed](parser: Parser[OtherParsed]): Parser[List[Parsed]] =
+    (source: String) => {
+      (this <~ parser).+(source).flatMap(
+        parseResult =>
+        this(parseResult.remnant).map(innerParseResult =>
+        ParseResult(parseResult.parsed :+ innerParseResult.parsed, innerParseResult.remnant))
+        .orElse(Try(parseResult)))
+    }
 
   def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
@@ -47,9 +55,10 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]] {
     source: String => this(source).map(parseResult => function(parseResult.parsed))
   }
 
-  private def sequentialParse[Parsed1, Parsed2](parser1 : Parser[Parsed1], parser2 : Parser[Parsed2]) : Parser[Parsed2] = {
+  private def sequentialParse[OtherParsed, UsedParsed](parser : Parser[OtherParsed], selectResult: Function[(Parsed, OtherParsed), UsedParsed]) : Parser[UsedParsed] = {
     source: String => {
-      parser1(source).map(parseResult => parser2(parseResult.remnant).get)
+      (this <> parser)(source).map(parseResult =>
+        ParseResult(selectResult(parseResult.parsed), parseResult.remnant))
     }
   }
 }

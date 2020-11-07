@@ -1,7 +1,7 @@
 package parser_combinators
 
 import parser_combinators.internal.cases.classes.char
-import parser_combinators.internal.cases.objects.double
+import parser_combinators.internal.cases.objects.{double, integer}
 
 object main_parsers extends App {
   val a = char('a') <|> char('b') <|> char('c')
@@ -11,6 +11,10 @@ object main_parsers extends App {
   val e = b("ab")
 
   val number = double("-013.32")
+
+  val fe = integer.sepBy(char('-'))
+
+  val value = fe("4356-1234-1234-")
 
   val dummyImplicit = 2
 }
