@@ -38,14 +38,7 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]] {
   }
 
   //TODO: Corregir bug de parseo, debería permitir un parseo aunque no exista el separador, se puede probar este caso en main_figure_parsers, el parser de group
-  def sepBy[OtherParsed](parser: Parser[OtherParsed]): Parser[List[Parsed]] =
-    (source: String) => {
-      (this <~ parser).+(source).flatMap(
-        parseResult =>
-        this(parseResult.remnant).map(innerParseResult =>
-        ParseResult(parseResult.parsed :+ innerParseResult.parsed, innerParseResult.remnant))
-        .orElse(Try(parseResult)))
-    }
+  def sepBy[OtherParsed](separator: Parser[OtherParsed]): Parser[List[Parsed]] = positiveClosure(this <~ separator.opt)
 
   def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
