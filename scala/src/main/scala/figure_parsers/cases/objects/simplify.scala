@@ -16,6 +16,11 @@ case object simplify extends Function[Figure, Figure] {
         Group(figures.map(f => simplify(f)))
     }
     case Colour(_, _, _, Colour(_red, _green, _blue, figure)) => Colour(_red, _green, _blue, simplify(figure))
+
+    case Rotate(grade, figure) => if(grade == 0) simplify(figure) else Rotate(grade, simplify(figure))
+    case Scale(x, y, figure) => if(x == 1 && y == 1) simplify(figure) else Scale(x, y, simplify(figure))
+    case Relocate(x, y, figure) => if(x == 0 && y == 0) simplify(figure) else Relocate(0, 0, simplify(figure))
+      
     case Rotate(grade, Rotate(_grade, figure)) => Rotate(grade + _grade, simplify(figure))
     case Scale(x, y, Scale(_x, _y, figure: Figure)) => Scale(x * _x, y * _y, simplify(figure))
     case Relocate(x, y, Relocate(_x, _y, figure)) => Relocate(x + _x, y + _y, simplify(figure))

@@ -54,5 +54,11 @@ object main_figure_parsers extends App {
 
   val resultOfSimplify2 = simplify(groupWithCommonColourParsed.get.parsed)
 
+  val groupWithNullTransformations = "grupo(escala[1, 1](circulo[0 @ 5, 10]),traslacion[0, 0](circulo[0 @ 5, 10]),rotacion[0](rectangulo[100 @ 200, 300 @ 400])))"
+
+  val groupWithNullTransformationsParsed = figureParser(groupWithNullTransformations)
+
+  val resultOfSimplify3 = simplify(groupWithNullTransformationsParsed.get.parsed)
+
   val dummyImplicit = 2
 }
