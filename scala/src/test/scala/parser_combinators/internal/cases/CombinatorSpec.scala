@@ -71,13 +71,13 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
 
   "LeftMost" should "succeed if both parser succeeded " in {
     val LeftMostOp = char('c') <~ char('a')
-    val result = LeftMostOp("acva")
+    val result = LeftMostOp("cava")
     assert(result.isSuccess)
   }
 
   it should "return the first parser value" in {
     val LeftMostOp = char('c') <~ char('a')
-    val result = LeftMostOp("acva")
+    val result = LeftMostOp("cava")
     assertResult('c') (result.get.parsed)
   }
 
@@ -95,7 +95,7 @@ class CombinatorSpec extends AnyFlatSpec with should.Matchers  {
 
   it should "return the first parser remnant" in {
     val LeftMostOp = char('c') <~ char('a')
-    val result = LeftMostOp("acvas")
+    val result = LeftMostOp("cavas")
     assertResult("vas") (result.get.remnant)
   }
 
