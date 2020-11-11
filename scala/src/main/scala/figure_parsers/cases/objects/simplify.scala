@@ -39,15 +39,15 @@ case class groupWithCommonColor(commonColor: Try[Colour]) extends (List[Figure] 
 
   def apply(figures: List[Figure]): Try[List[Figure]] = {
     Try({
-      val figuresWithoutColour = for {
+      val figuresInColours = for {
         color <- figures.asInstanceOf[List[Colour]]
         if color.equals(commonColor.get)
       } yield color.figure
 
-      if (!figuresWithoutColour.size.equals(figures.size))
+      if (!figuresInColours.size.equals(figures.size))
         throw new Error
       else
-        figuresWithoutColour
+        figuresInColours
     })
   }
 }
