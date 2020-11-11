@@ -1,10 +1,12 @@
 package figure_parsers
 
-import figure_parsers.cases.objects.{circleParser, colourParser, figureParser, groupParser, rectangleParser, scaleParser, simplify, triangleParser}
+import figure_parsers.cases.objects.{circleParser, colourParser, draw, figureParser, groupParser, rectangleParser, scaleParser, simplify, triangleParser}
 import figure_parsers.internal.Figure
 import figure_parsers.internal.Figure.Group
 import parser_combinators.internal.cases.classes.ParseResult
+import tadp.internal.TADPDrawingAdapter
 
+import scala.io.Source
 import scala.util.Try
 
 object main_figure_parsers extends App {
@@ -59,6 +61,22 @@ object main_figure_parsers extends App {
   val groupWithNullTransformationsParsed = figureParser(groupWithNullTransformations)
 
   val resultOfSimplify3 = simplify(groupWithNullTransformationsParsed.get.parsed)
+
+  /*** Prueba dibujado ***/
+  val testDrawString = "grupo(color[10, 150, 255](rectangulo[200 @ 200, 400 @ 400]),rectangulo[100 @ 200, 300 @ 400])"
+
+  var figureFile = ""
+
+  val bufferedSource = Source.fromFile("resources/carpincho.txt")
+  for (line <- bufferedSource.getLines) {
+    figureFile = figureFile.concat(line)
+  }
+  bufferedSource.close
+
+  val testDraw = figureParser(figureFile)
+
+  TADPDrawingAdapter
+    .forScreen (draw(testDraw.get.parsed))
 
   val dummyImplicit = 2
 }
