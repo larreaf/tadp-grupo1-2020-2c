@@ -9,7 +9,7 @@ import tadp.internal.TADPDrawingAdapter
 import scala.io.Source
 
 object TADPDrawingApp extends App {
-  
+
   val parseAndDrawFile = (imageName: String, adapter: TADPDrawingAdapter) =>{
     var figureFile = ""
 

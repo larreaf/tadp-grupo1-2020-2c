@@ -8,6 +8,7 @@ import tadp.internal.TADPDrawingAdapter
 case class draw(figure: Figure) extends (TADPDrawingAdapter => TADPDrawingAdapter){
   def apply(adapter: TADPDrawingAdapter): TADPDrawingAdapter = figure match {
     case Group(figures) => figures.foldLeft(adapter) { (_adapter, fig) => draw(fig)(_adapter)}
+
     case Colour(red, green, blue, _figure) => draw(_figure)(adapter.beginColor(Color.rgb(red, green, blue))).end()
     case Rotate(grade, _figure) => draw(_figure)(adapter.beginRotate(grade.toDouble)).end()
     case Scale(x, y, _figure) => draw(_figure)(adapter.beginScale(x, y)).end()
