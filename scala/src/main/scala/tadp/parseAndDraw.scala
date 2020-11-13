@@ -20,10 +20,9 @@ case object parseAndDraw extends ((String, TADPDrawingAdapter) => Any){
   }
 
   def checkIfFile(fileName: String): Boolean = {
-    val imageFileName = normalize(fileName)
     Files.exists(
           FileSystems.getDefault()
-                     .getPath( resourcesDir + fileName + ext)
+                     .getPath( resourcesDir + normalize(fileName) + ext)
     )
   }
 
