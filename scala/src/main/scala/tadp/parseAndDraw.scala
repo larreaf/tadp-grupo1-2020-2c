@@ -21,11 +21,16 @@ case object parseAndDraw extends ((String, TADPDrawingAdapter) => Any){
 
   def checkIfFile(fileName: String): Boolean = {
     val imageFileName = normalize(fileName)
-    Files.exists(FileSystems.getDefault().getPath( resourcesDir + fileName + ext))
+    Files.exists(
+          FileSystems.getDefault()
+                     .getPath( resourcesDir + fileName + ext)
+    )
   }
 
   def normalize(str: String): String = {
-    str.replace("/", "").replace("\\", "").replace(".","")
+    str.replace("/", "")
+       .replace("\\", "")
+       .replace(".","")
   }
 
   val parseAndDrawFile = (imageName: String, adapter: TADPDrawingAdapter) => {
