@@ -24,7 +24,7 @@ case object simplify extends Function[Figure, Figure] {
     Try({
       val colors = figures.asInstanceOf[List[Colour]]
       val head = colors.head
-      colors.foldLeft(true)((bool, color) => color.equals(head) && bool)
+      colors.forall(color => color.equals(head))
     }) match {
       case Success(result) => result
       case Failure(_) => false
