@@ -13,10 +13,10 @@ case object scaleParser extends Parser[Figure] {
   val parser: Parser[(List[Double], Figure)] = string("escala") ~> char('[') ~> double.sepBy(string(", ")) <~ char(']') <> (char('(') ~> figureParser <~ char(')'))
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
-    this.parser(source)
-        .map(parseResult => {
-          val scales = parseResult.parsed._1
-          ParseResult(Scale(scales.head, scales.last, parseResult.parsed._2), parseResult.remnant)
-        })
+    this.parser
+        .map[Figure](tupleParsed => {
+          val scales = tupleParsed._1
+          Scale(scales.head, scales.last, tupleParsed._2)
+        })(source)
   }
 }

@@ -13,9 +13,6 @@ case object circleParser extends Parser[Figure] {
   val parser: Parser[(Coordinates2D, Integer)] = string("circulo") ~> char('[') ~> point2d_parser <> (string(", ") ~> integer) <~ char(']')
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
-    this.parser(source).map(parseResult => {
-      val tupleParsed = parseResult.parsed
-      ParseResult(Circle(tupleParsed._1, tupleParsed._2), parseResult.remnant)
-    })
+    this.parser.map[Figure](tupleParsed => Circle(tupleParsed._1, tupleParsed._2))(source)
   }
 }

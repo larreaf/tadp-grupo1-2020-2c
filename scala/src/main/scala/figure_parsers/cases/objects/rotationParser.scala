@@ -12,10 +12,10 @@ case object rotationParser extends Parser[Figure] {
   val parser: Parser[(Integer, Figure)] = string("rotacion") ~> char('[') ~> naturalWithZero <~ char(']') <> (char('(') ~> figureParser <~ char(')'))
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
-    this.parser(source)
-        .map(parseResult => {
-          val grade = parseResult.parsed._1
-          ParseResult(Rotate(if (grade > 359) grade % 360 else grade, parseResult.parsed._2), parseResult.remnant)
-        })
+    this.parser
+        .map[Figure](tupleParsed => {
+          val grade = tupleParsed._1
+          Rotate(if (grade > 359) grade % 360 else grade, tupleParsed._2)
+        })(source)
   }
 }

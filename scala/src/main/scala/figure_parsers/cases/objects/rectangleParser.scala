@@ -12,9 +12,6 @@ case object rectangleParser extends Parser[Figure] {
   val parser: Parser[List[Coordinates2D]] = string("rectangulo") ~> char('[') ~> point2d_parser.sepBy(string(", ")) <~ char(']')
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
-    this.parser(source).map(parseResult => {
-      val coordinates2D = parseResult.parsed
-      ParseResult(Rectangle(coordinates2D.head, coordinates2D.last), parseResult.remnant)
-    })
+    this.parser.map[Figure](coordinates2D => Rectangle(coordinates2D.head, coordinates2D.last))(source)
   }
 }

@@ -13,10 +13,9 @@ case object colourParser extends Parser[Figure] {
   val parser: Parser[(List[Integer], Figure)] = string("color") ~> char('[') ~> integer.sepBy(string(", ")) <~ char(']') <> (char('(') ~> figureParser <~ char(')'))
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
-    this.parser(source)
-        .map(parseResult => {
-          val rgb = parseResult.parsed._1
-          ParseResult(Colour(rgb.head, rgb(1), rgb.last, parseResult.parsed._2), parseResult.remnant)
-        })
+    this.parser.map[Figure](tupleParsed => {
+      val rgb = tupleParsed._1
+      Colour(rgb.head, rgb(1), rgb.last, tupleParsed._2)
+    })(source)
   }
 }

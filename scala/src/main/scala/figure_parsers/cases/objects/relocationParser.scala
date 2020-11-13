@@ -12,10 +12,9 @@ case object relocationParser extends Parser[Figure] {
   val parser: Parser[(List[Integer], Figure)] = string("traslacion") ~> char('[') ~> integer.sepBy(string(", ")) <~ char(']') <> (char('(') ~> figureParser <~ char(')'))
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
-    this.parser(source)
-        .map(parseResult => {
-          val coordinates = parseResult.parsed._1
-          ParseResult(Relocate(coordinates.head, coordinates.last, parseResult.parsed._2), parseResult.remnant)
-        })
+    this.parser.map[Figure](tupleParsed => {
+      val coordinates = tupleParsed._1
+      Relocate(coordinates.head, coordinates.last, tupleParsed._2)
+    })(source)
   }
 }
