@@ -1,13 +1,9 @@
 package figure_parsers
 
-import figure_parsers.cases.objects.{circleParser, colourParser, draw, figureParser, groupParser, rectangleParser, scaleParser, simplify, triangleParser}
-import figure_parsers.internal.Figure
-import figure_parsers.internal.Figure.Group
-import parser_combinators.internal.cases.classes.ParseResult
+import figure_parsers.cases.objects._
 import tadp.internal.TADPDrawingAdapter
 
 import scala.io.Source
-import scala.util.Try
 
 object main_figure_parsers extends App {
   val triangle = "triangulo[0 @ 100, 200 @ 300, 400 @ 500]"
@@ -44,7 +40,7 @@ object main_figure_parsers extends App {
 
   val figuresToSimplify = "grupo(color[255, 255, 255](rectangulo[0 @ 0, 400 @ 400]),color[255, 255, 255](rectangulo[0 @ 0, 180 @ 150]))"
 
-  val everySimplificationUnlessGroupColor = "grupo(color[255, 255, 255](color[150, 0, 150](rectangulo[0 @ 0, 400 @ 400])),escala[2, 3](escala[3, 5](circulo[0 @ 5, 10])),traslacion[100, 5](traslacion[20, 10](circulo[0 @ 5, 10])),rotacion[300](rotacion[10](rectangulo[100 @ 200, 300 @ 400])))"
+  val everySimplificationUnlessGroupColor = "grupo(color[255, 255, 255](color[150, 0, 150](rectangulo[ 0 @ 0 ,  400 @ 400])),escala[2, 3](escala[3, 5](circulo[0 @ 5, 10])),traslacion[100, 5](traslacion[20, 10](circulo[0 @ 5, 10])),rotacion[300](rotacion[10](rectangulo[100 @ 200, 300 @ 400])))"
 
   val parsedFiguresToSimplify = figureParser(everySimplificationUnlessGroupColor)
 

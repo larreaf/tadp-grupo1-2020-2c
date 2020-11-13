@@ -9,7 +9,7 @@ import scala.util.Try
 
 case object groupParser extends Parser[Figure] {
 
-  val parser: Parser[List[Figure]] = string("grupo") ~> char('(') ~> figureParser.sepBy(char(',')) <~ char(')')
+  val parser: Parser[List[Figure]] = string("grupo") ~> char('(').withBlanks ~> figureParser.sepBy(char(',').withBlanks) <~ char(')').withBlanks
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
     parser.map[Figure](figures => Group(figures))(source)

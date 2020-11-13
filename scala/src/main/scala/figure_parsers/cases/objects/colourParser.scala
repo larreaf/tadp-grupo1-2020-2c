@@ -10,7 +10,7 @@ import scala.util.Try
 
 case object colourParser extends Parser[Figure] {
 
-  val parser: Parser[(List[Integer], Figure)] = string("color") ~> char('[') ~> integer.sepBy(string(", ")) <~ char(']') <> (char('(') ~> figureParser <~ char(')'))
+  val parser: Parser[(List[Integer], Figure)] = string("color") ~> char('[').withBlanks ~> integer.sepBy(char(',').withBlanks) <~ char(']').withBlanks <> (char('(').withBlanks ~> figureParser <~ char(')').withBlanks)
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
     this.parser.map[Figure](tupleParsed => {
