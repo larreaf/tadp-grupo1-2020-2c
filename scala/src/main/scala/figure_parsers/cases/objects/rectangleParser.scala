@@ -9,7 +9,7 @@ import parser_combinators.internal.mixins.Parser
 import scala.util.Try
 
 case object rectangleParser extends Parser[Figure] {
-  val parser: Parser[List[Coordinates2D]] = string("rectangulo") ~> char('[') ~> point2d_parser.sepBy(string(", ")) <~ char(']')
+  val parser: Parser[List[Coordinates2D]] = string("rectangulo") ~> char('[') ~> point2d_parser.sepBy(char(',')) <~ char(']')
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
     this.parser(source).map(parseResult => {

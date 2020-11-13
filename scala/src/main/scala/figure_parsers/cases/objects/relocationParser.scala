@@ -9,7 +9,7 @@ import parser_combinators.internal.mixins.Parser
 import scala.util.Try
 
 case object relocationParser extends Parser[Figure] {
-  val parser: Parser[(List[Integer], Figure)] = string("traslacion") ~> char('[') ~> integer.sepBy(string(", ")) <~ char(']') <> (char('(') ~> figureParser <~ char(')'))
+  val parser: Parser[(List[Integer], Figure)] = string("traslacion") ~> char('[').withBlanks ~> integer.sepBy(string(",").withBlanks) <~ char(']').withBlanks <> (char('(') ~> figureParser <~ char(')')).withBlanks
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
     this.parser(source)

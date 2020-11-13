@@ -9,7 +9,7 @@ import parser_combinators.internal.mixins.Parser
 import scala.util.Try
 
 case object rotationParser extends Parser[Figure] {
-  val parser: Parser[(Integer, Figure)] = string("rotacion") ~> char('[') ~> naturalWithZero <~ char(']') <> (char('(') ~> figureParser <~ char(')'))
+  val parser: Parser[(Integer, Figure)] = string("rotacion") ~> char('[').withBlanks ~> naturalWithZero <~ char(']').withBlanks <> (char('(') ~> figureParser <~ char(')')).withBlanks
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
     this.parser(source)
