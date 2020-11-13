@@ -17,19 +17,18 @@ ancho = len(img[0]) - 1
 
 escala = 4
 
-coordX1 = -escala
-coordY1 = -escala
-
+X = -escala
+Y = -escala
 outStr = "grupo("
 
 for i, row in enumerate(img):
-    coordX1 = -escala
-    coordY1 += escala
+    X = -escala
+    Y += escala
 
     for j, px in enumerate(row):
-        coordX1 += escala
+        X += escala
         newRectangle = "color["+ str(px[2]) + ", "+str(px[1])+", "+str(px[0]) +"]"
-        newRectangle += "(rectangulo["+str(coordX1)+" @ "+str(coordY1)+", "+str(coordX1 + escala)+" @ "+str(coordY1 + escala)+"])\n"
+        newRectangle += "(rectangulo["+str(X)+" @ "+str(Y)+", "+str(X + escala)+" @ "+str(Y + escala)+"])\n"
         if(i == alto and j == ancho ):
             outStr += newRectangle
         else:
