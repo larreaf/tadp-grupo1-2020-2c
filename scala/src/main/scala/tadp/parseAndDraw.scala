@@ -5,26 +5,33 @@ import figure_parsers.cases.objects.{draw, figureParser}
 import tadp.internal.TADPDrawingAdapter
 
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 case object parseAndDraw extends ((String, TADPDrawingAdapter) => Any){
 
+  val resourcesDir = "resources/"
+  val ext = ".txt"
+
   def apply (imageNameOrText: String, adapter: TADPDrawingAdapter): Any = {
-      if (checkIfFile(imageNameOrText))
-        parseAndDrawFile(imageNameOrText, adapter)
-      else
-        parseAndDrawText(imageNameOrText, adapter)
+    Try(_parseAndDraw(imageNameOrText, adapter)) match {
+      case Success(parseResult) => parseResult
+      case Failure(_) => throw new Exception("No existe el archivo o el texto no se pudo parsear.")
+    }
   }
 
-
   def checkIfFile(fileName: String): Boolean = {
-    val imageFileName = fileName.replace("/", "").replace("\\", "")
-    Files.exists(FileSystems.getDefault().getPath("resources/" + fileName + ".txt"))
+    val imageFileName = normalize(fileName)
+    Files.exists(FileSystems.getDefault().getPath( resourcesDir + fileName + ext))
+  }
+
+  def normalize(str: String): String = {
+    str.replace("/", "").replace("\\", "").replace(".","")
   }
 
   val parseAndDrawFile = (imageName: String, adapter: TADPDrawingAdapter) => {
     var figureFile = ""
 
-    val bufferedSource = Source.fromFile("resources/" + imageName + ".txt")
+    val bufferedSource = Source.fromFile(resourcesDir + imageName + ext)
     for (line <- bufferedSource.getLines) {
       figureFile = figureFile.concat(line)
     }
@@ -37,6 +44,13 @@ case object parseAndDraw extends ((String, TADPDrawingAdapter) => Any){
     draw(testDraw.get.parsed)(adapter)
   }
 
+
+  val _parseAndDraw = (imageNameOrText: String, adapter: TADPDrawingAdapter) => {
+    if (checkIfFile(imageNameOrText))
+      parseAndDrawFile(imageNameOrText, adapter)
+    else
+      parseAndDrawText(imageNameOrText, adapter)
+  }
 
 
 }
