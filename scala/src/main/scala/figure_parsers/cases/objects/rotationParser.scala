@@ -15,7 +15,7 @@ case object rotationParser extends Parser[Figure] {
     this.parser
         .map[Figure](tupleParsed => {
           val grade = tupleParsed._1
-          Rotate(if (grade > 359) grade % 360 else grade, tupleParsed._2)
+          Rotate(grade % 360, tupleParsed._2)
         })(source)
   }
 }
