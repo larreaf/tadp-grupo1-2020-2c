@@ -1,7 +1,7 @@
 package tadp
 import java.nio.file.{FileSystems, Files}
 
-import figure_parsers.cases.objects.{draw, figureParser}
+import figure_parsers.cases.objects.{draw, drawableParser}
 import tadp.internal.TADPDrawingAdapter
 
 import scala.io.Source
@@ -46,7 +46,7 @@ case object parseAndDraw extends ((String, TADPDrawingAdapter) => Any){
   }
 
   val parseAndDrawText: (String, TADPDrawingAdapter) => TADPDrawingAdapter = (text: String, adapter: TADPDrawingAdapter) => {
-    val testDraw = figureParser(text)
+    val testDraw = drawableParser(text)
     draw(testDraw.get.parsed)(adapter)
   }
 

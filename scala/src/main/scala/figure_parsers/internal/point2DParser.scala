@@ -7,7 +7,7 @@ import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
 
-case object point2d_parser extends Parser[Coordinates2D] {
+case object point2DParser extends Parser[Coordinates2D] {
 
   val parser: Parser[(Double, Double)] = (double <> ( char('@').withBlanks ~> double)).withBlanks
 

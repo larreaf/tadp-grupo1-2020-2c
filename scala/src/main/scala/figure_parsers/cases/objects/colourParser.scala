@@ -1,6 +1,6 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.Drawable
+import figure_parsers.internal.{Drawable, inBracketsParser, inParenthesesDrawableParser}
 import figure_parsers.internal.Figure.Colour
 import parser_combinators.internal.cases.classes.{ParseResult, char, string}
 import parser_combinators.internal.cases.objects.integer
@@ -10,7 +10,7 @@ import scala.util.Try
 
 case object colourParser extends Parser[Drawable] {
 
-  val parser: Parser[(List[Integer], Drawable)] = string("color") ~> char('[').withBlanks ~> integer.sepBy(char(',').withBlanks) <~ char(']').withBlanks <> (char('(').withBlanks ~> figureParser <~ char(')').withBlanks)
+  val parser: Parser[(List[Integer], Drawable)] = string("color") ~> inBracketsParser(integer.sepBy(char(',').withBlanks)) <> inParenthesesDrawableParser
 
   override def apply(source: String): Try[ParseResult[Drawable]] = {
     this.parser.map[Drawable](tupleParsed => {

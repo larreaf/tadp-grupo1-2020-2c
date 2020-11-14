@@ -6,7 +6,7 @@ import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
 
-case object figureParser extends Parser[Drawable] {
+case object drawableParser extends Parser[Drawable] {
   val parser: Parser[Drawable] = (colourParser <|> scaleParser <|>
                                rotationParser <|> relocationParser <|>
                                groupParser <|> triangleParser <|>
