@@ -3,13 +3,13 @@ package figure_parsers.cases.objects
 import figure_parsers.internal.Figure
 import figure_parsers.internal.Figure.Relocate
 import parser_combinators.internal.cases.classes.{ParseResult, char, string}
-import parser_combinators.internal.cases.objects.integer
+import parser_combinators.internal.cases.objects.double
 import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
 
 case object relocationParser extends Parser[Figure] {
-  val parser: Parser[(List[Integer], Figure)] = string("traslacion") ~> char('[').withBlanks ~> integer.sepBy(string(",").withBlanks) <~ char(']').withBlanks <> (char('(') ~> figureParser <~ char(')')).withBlanks
+  val parser: Parser[(List[Double], Figure)] = string("traslacion") ~> char('[').withBlanks ~> double.sepBy(string(",").withBlanks) <~ char(']').withBlanks <> (char('(') ~> figureParser <~ char(')')).withBlanks
 
   override def apply(source: String): Try[ParseResult[Figure]] = {
     this.parser.map[Figure](tupleParsed => {

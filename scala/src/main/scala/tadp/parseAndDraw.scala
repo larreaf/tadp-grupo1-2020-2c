@@ -30,6 +30,8 @@ case object parseAndDraw extends ((String, TADPDrawingAdapter) => Any){
     str.replace("/", "")
        .replace("\\", "")
        .replace(".","")
+       .replace("\n", "")
+       .replace("\t", "")
   }
 
   val parseAndDrawFile: (String, TADPDrawingAdapter) => TADPDrawingAdapter = (imageName: String, adapter: TADPDrawingAdapter) => {

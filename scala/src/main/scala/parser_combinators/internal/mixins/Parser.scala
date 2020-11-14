@@ -54,10 +54,8 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]] {
     }
   }
 
-
   def withBlanks: Parser[Parsed] = (source: String) => {
     val blanks = (char(' ') <|> char('\n') <|> char('\t')).*
-    (blanks ~> this <~ blanks) (source)
+    (blanks ~> this <~ blanks)(source)
   }
-
 }

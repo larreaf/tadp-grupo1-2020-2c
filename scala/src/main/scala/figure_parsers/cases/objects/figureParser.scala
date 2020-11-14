@@ -1,7 +1,7 @@
 package figure_parsers.cases.objects
 
 import figure_parsers.internal.Figure
-import parser_combinators.internal.cases.classes.{ParseResult, char}
+import parser_combinators.internal.cases.classes.ParseResult
 import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
