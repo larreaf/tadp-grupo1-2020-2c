@@ -2,10 +2,11 @@ package parser_combinators.internal.auxiliars
 import parser_combinators.internal.cases.classes.ParseResult
 
 import scala.util.Try
+import parser_combinators.internal.mixins.Parser
 
 case object parseRecursively {
-  def apply[Parsed](source: String, function: Function[String, Try[ParseResult[Parsed]]]): List[Try[ParseResult[Parsed]]] = {
-    Iterator.iterate(function(source))(parsed => function(parsed.get.remnant))
+  def apply[Parsed](source: String, parser: Parser[Parsed]): List[Try[ParseResult[Parsed]]] = {
+    Iterator.iterate(parser(source))(parsed => parser(parsed.get.remnant))
             .takeWhile(tryResult =>  tryResult.isSuccess)
             .toList
   }

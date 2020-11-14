@@ -1,18 +1,12 @@
 package parser_combinators.internal.cases.classes
 
-import parser_combinators.internal.auxiliars.RegularExpressionParser
+import parser_combinators.internal.mixins.Parser
 
-import scala.util.matching.Regex
+import scala.util.Try
 
-case class char(character: Char) extends RegularExpressionParser[String]( new Regex("^-?"+character)) {}
-//case class char(character: Char) extends StringParser[Char]
-//{
-//  override protected def result(source: String): Try[Char] = source match {
-//    case string: String if string.contains(character) => Try(character)
-//    case _ => Try(throw new Error)
-//  }
-//
-//  override protected def remnant(string: String): String = {
-//    string.substring(string.indexOf(character) + 1)
-//  }
-//}
+case class char(character: Char) extends Parser[Char] {
+  override def apply(source: String): Try[ParseResult[Char]] = source match {
+    case string: String if !string.isEmpty && string.charAt(0) == character => Try(ParseResult(character, string.substring(1)))
+    case _ => Try(throw new Error)
+  }
+}

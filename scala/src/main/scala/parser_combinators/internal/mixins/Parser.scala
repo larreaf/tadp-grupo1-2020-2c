@@ -1,30 +1,24 @@
 package parser_combinators.internal.mixins
 
-import parser_combinators.internal.cases.classes.{Husk, ParseResult, kleeneClosure, mixedParser, positiveClosure, RightMost, LeftMost, Concat}
+import parser_combinators.internal.cases.classes._
 
 import scala.util.{Failure, Success, Try}
 
-trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
-  def apply (source: String): Try[ParseResult[Parsed]] = {
-    this.result(source) match { // cambiar por operaciones monádicas.
-      case Success(value) => Try(ParseResult(value, this.remnant(source)))
-      case Failure(exception) => Try(throw exception)
-    }
+trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]] {
+  def apply(source: String): Try[ParseResult[Parsed]]
+
+  def <|>(optionParser: Parser[Parsed]): Parser[Parsed] = (source: String) => this(source).orElse(optionParser(source))
+
+  def <>[OtherParsed](parser: Parser[OtherParsed]): Parser[(Parsed, OtherParsed)] = (source: String) => {
+    this (source).map(parseResult => {
+      val secondParseResult = parser(parseResult.remnant).get
+      ParseResult((parseResult.parsed, secondParseResult.parsed), secondParseResult.remnant)
+    })
   }
 
-  def <|>(optionParser: Parser[Parsed]): Parser[Parsed] = Husk((source: String) => this(source).orElse(optionParser(source)))
+  def ~>[OtherParsed](parser: Parser[OtherParsed]): Parser[OtherParsed] = sequentialParse[OtherParsed, OtherParsed](parser, _._2)
 
-  def <> (parser: Parser[Parsed]): Husk[(Parsed, Parsed)] = Husk((source: String) => {
-    val firstResult = this(source)
-    Try(ParseResult(
-          (firstResult.get.parsed, parser(this.obtainRemnant(firstResult)).get.parsed),
-          parser(this.obtainRemnant(firstResult)).get.remnant
-    ))
-  })
-
-  def ~> (parser: Parser[Parsed]): RightMost[Parsed] = RightMost(this, parser)
-
-  def <~ (parser: Parser[Parsed]): LeftMost[Parsed] = LeftMost(this, parser)
+  def <~[OtherParsed](parser: Parser[OtherParsed]): Parser[Parsed] = sequentialParse[OtherParsed, Parsed](parser, _._1)
 
   def satisfies(condition: Function[Parsed, Boolean]): Function[String, Option[Parser[Parsed]]] = {
     source =>  {
@@ -35,29 +29,33 @@ trait Parser[Parsed] extends Function[String, Try[ParseResult[Parsed]]]  {
     }
   }
 
-  def opt: Parser[String] = {
-    Husk(source => {
-      this.result(source) match {
-        case Success(result: String) => Try(ParseResult(result, this.remnant(source)))
-        case Failure(_) => Try(ParseResult("", source))
-      }
-    })
+  def opt: Parser[Option[Parsed]] = (source: String) => {
+    val parseResult = this(source)
+    parseResult match {
+      case Success(parseResult) => Try(ParseResult(Some(parseResult.parsed), parseResult.remnant))
+      case Failure(_) => Try(ParseResult(None, source))
+    }
   }
+
+  def sepBy[OtherParsed](separator: Parser[OtherParsed]): Parser[List[Parsed]] = positiveClosure(this <~ separator.opt)
 
   def * : kleeneClosure[Parsed] = kleeneClosure(this)
 
   def + : positiveClosure[Parsed] = positiveClosure(this)
 
-  def sepBy[OtherParsed](parser: Parser[OtherParsed]): positiveClosure[Parsed] = positiveClosure(mixedParser(this, parser))
-
-  def map[Destination](function: Function[Parsed, Destination]): Function[String, Try[Destination]] = {
-    source: String => this(source).map(parseResult => function(parseResult.parsed))
+  def map[Destination](function: Function[Parsed, Destination]): Parser[Destination] = {
+    source: String => this(source).map(parseResult => ParseResult(function(parseResult.parsed), parseResult.remnant))
   }
 
-  def result(source: String): Try[Parsed]
+  private def sequentialParse[OtherParsed, UsedParsed](parser : Parser[OtherParsed], selectResult: Function[(Parsed, OtherParsed), UsedParsed]) : Parser[UsedParsed] = {
+    source: String => {
+      (this <> parser)(source).map(parseResult =>
+        ParseResult(selectResult(parseResult.parsed), parseResult.remnant))
+    }
+  }
 
-  def remnant(source: String): String
-
-  def obtainRemnant(result: Try[ParseResult[Parsed]]): String = result.get
-                                                                      .remnant
+  def withBlanks: Parser[Parsed] = (source: String) => {
+    val blanks = (char(' ') <|> char('\n') <|> char('\t')).*
+    (blanks ~> this <~ blanks)(source)
+  }
 }

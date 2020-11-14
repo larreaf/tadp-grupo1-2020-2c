@@ -1,16 +1,13 @@
 package parser_combinators.internal.cases.objects
 
-import parser_combinators.internal.auxiliars.RegularExpressionParser
+import parser_combinators.internal.cases.classes.ParseResult
+import parser_combinators.internal.mixins.Parser
 
-case object anyChar extends RegularExpressionParser[Char]("^-?\\w".r) {}
+import scala.util.Try
 
-//case object anyChar extends StringParser[Char] {
-//  override protected def result(source: String): Try[Char] = source match {
-//    case string: String if string.length > 0 => Try(string.charAt(0))
-//    case _ => Try(throw new Error)
-//  }
-//
-//  override protected def remnant(string: String): String = {
-//    string.substring(1)
-//  }
-//}
+case object anyChar extends Parser[Char] {
+  override def apply(source: String): Try[ParseResult[Char]] = source match {
+    case string: String if !string.isEmpty => Try(ParseResult(string.charAt(0), string.substring(1)))
+    case _ => Try(throw new Error)
+  }
+}

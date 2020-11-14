@@ -1,19 +1,17 @@
 package parser_combinators.internal.cases.objects
 
-import parser_combinators.internal.auxiliars.RegularExpressionParser
+import parser_combinators.internal.cases.classes.{ParseResult, char}
+import parser_combinators.internal.mixins.Parser
 
-case object digit extends RegularExpressionParser[Char]("^-?\\d".r) {}
-//case object digit extends StringParser[Char] {
-//  override protected def result(source: String): Try[Char] = source match {
-//    case string: String if string.length > 0 && string.charAt(0).isDigit => Try(string.charAt(0))
-//    case _ => Try(throw new Error)
-//  }
-//
-//  override protected def remnant(source: String): String = {
-//    source.substring(source.indexOf(firstDigit(source)) + 1)
-//  }
-//
-//  protected def firstDigit(source: String): Char = {
-//    source.find(c => c.isDigit).get
-//  }
-//}
+import scala.util.Try
+
+case object digit extends Parser[Char] {
+
+  private val parser =  char('0') <|> char('1') <|>
+                        char('2') <|> char('3') <|>
+                        char('4') <|> char('5') <|>
+                        char('6') <|> char('7') <|>
+                        char('8') <|> char('9')
+
+  override def apply(source: String): Try[ParseResult[Char]] = this.parser(source)
+}
