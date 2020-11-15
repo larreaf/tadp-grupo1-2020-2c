@@ -1,50 +1,49 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.Figure
+import figure_parsers.internal.Drawable
 import figure_parsers.internal.Figure._
 
 import scala.util.Try
 
 
-case object simplify extends Function[Figure, Figure] {
+case object simplify extends Function[Drawable, Drawable] {
 
-  def simplifyGroup(figures: List[Figure]): Figure = {
-    figures match {
-      case colours: List[Colour] if this.allColoursAreEqual(figures) =>
+  def simplifyGroup(drawables: List[Drawable]): Drawable = {
+    drawables match {
+      case colours: List[Colour] if this.allColoursAreEqual(colours) =>
         val colour = colours.head
-        val figures = colours.map(c => c.figure)
-        colour.copy(figure = this.simplifyGroupInnerFigures(figures))
-      case _ => this.simplifyGroupInnerFigures(figures)
+        val drawables = colours.map(c => c.drawable)
+        colour.copy(drawable = this.simplifyGroupInnerFigures(drawables))
+      case _ => this.simplifyGroupInnerFigures(drawables)
     }
   }
 
-  def simplifyGroupInnerFigures(figures: List[Figure]): Figure = Group(for (figure <- figures) yield simplify(figure))
+  def simplifyGroupInnerFigures(drawables: List[Drawable]): Drawable = Group(for (drawable <- drawables) yield simplify(drawable))
 
-  def allColoursAreEqual(figures: List[Figure]): Boolean = {
+  def allColoursAreEqual(colours: List[Colour]): Boolean = {
     Try({
-      val colors = figures.asInstanceOf[List[Colour]]
-      val head = colors.head
-      colors.forall(color => color.equals(head))
+      val head = colours.head
+      colours.forall(colour => colour.equals(head))
     }).getOrElse(false)
   }
 
-  def apply(figureTree: Figure): Figure = figureTree match {
-    case Group(figures) => this.simplifyGroup(figures)
+  def apply(drawableTree: Drawable): Drawable = drawableTree match {
+    case Group(drawables) => this.simplifyGroup(drawables)
 
-    case Colour(_, _, _, Colour(_red, _green, _blue, figure)) => Colour(_red, _green, _blue, simplify(figure))
-    case Rotate(grade, Rotate(_grade, figure)) => Rotate(grade + _grade, simplify(figure))
-    case Scale(x, y, Scale(_x, _y, figure: Figure)) => Scale(x * _x, y * _y, simplify(figure))
+    case Colour(_, _, _, Colour(_red, _green, _blue, drawable)) => Colour(_red, _green, _blue, simplify(drawable))
+    case Rotate(grade, Rotate(_grade, drawable)) => Rotate(grade + _grade, simplify(drawable))
+    case Scale(x, y, Scale(_x, _y, drawable)) => Scale(x * _x, y * _y, simplify(drawable))
     case Relocate(x, y, Relocate(_x, _y, figure)) => Relocate(x + _x, y + _y, simplify(figure))
 
-    case Rotate(0, figure) => simplify(figure)
-    case Scale(1, 1, figure) => simplify(figure)
-    case Relocate(0, 0, figure) => simplify(figure)
+    case Rotate(0, drawable) => simplify(drawable)
+    case Scale(1, 1, drawable) => simplify(drawable)
+    case Relocate(0, 0, drawable) => simplify(drawable)
 
-    case Colour(red, green, blue, figure) => Colour(red, green, blue, simplify(figure))
-    case Rotate(grade, figure) => Rotate(grade, simplify(figure))
-    case Scale(x, y, figure) => Scale(x, y, simplify(figure))
-    case Relocate(x, y, figure) => Relocate(x, y, figure)
+    case Colour(red, green, blue, drawable) => Colour(red, green, blue, simplify(drawable))
+    case Rotate(grade, drawable) => Rotate(grade, simplify(drawable))
+    case Scale(x, y, drawable) => Scale(x, y, simplify(drawable))
+    case Relocate(x, y, drawable) => Relocate(x, y, simplify(drawable))
 
-    case figure: Figure => figure
+    case drawable => drawable
   }
 }

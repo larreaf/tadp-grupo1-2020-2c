@@ -1,17 +1,17 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.Figure
+import figure_parsers.internal.{Drawable, inParenthesesParser}
 import figure_parsers.internal.Figure.Group
 import parser_combinators.internal.cases.classes.{ParseResult, char, string}
 import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
 
-case object groupParser extends Parser[Figure] {
+case object groupParser extends Parser[Drawable] {
 
-  val parser: Parser[List[Figure]] = string("grupo") ~> char('(').withBlanks ~> figureParser.sepBy(char(',').withBlanks) <~ char(')').withBlanks
+  val parser: Parser[List[Drawable]] = string("grupo") ~> inParenthesesParser(drawableParser.sepBy(char(',').withBlanks))
 
-  override def apply(source: String): Try[ParseResult[Figure]] = {
-    parser.map[Figure](figures => Group(figures))(source)
+  override def apply(source: String): Try[ParseResult[Drawable]] = {
+    parser.map[Drawable](figures => Group(figures))(source)
   }
 }

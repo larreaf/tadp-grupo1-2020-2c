@@ -3,7 +3,7 @@ package parser_combinators
 import parser_combinators.internal.cases.classes.char
 import parser_combinators.internal.cases.objects.{double, integer}
 
-object main_parsers extends App {
+object mainParsers extends App {
   val a = char('a') <|> char('b') <|> char('c')
 
   val b = char('a').opt ~> char('b')

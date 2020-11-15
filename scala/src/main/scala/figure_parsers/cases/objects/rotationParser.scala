@@ -1,21 +1,21 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.Figure
 import figure_parsers.internal.Figure.Rotate
-import parser_combinators.internal.cases.classes.{ParseResult, char, string}
+import figure_parsers.internal.{Drawable, inBracketsParser, inParenthesesDrawableParser}
+import parser_combinators.internal.cases.classes.{ParseResult, string}
 import parser_combinators.internal.cases.objects.double
 import parser_combinators.internal.mixins.Parser
 
 import scala.util.Try
 
-case object rotationParser extends Parser[Figure] {
-  val parser: Parser[(Double, Figure)] = string("rotacion") ~> char('[').withBlanks ~> double <~ char(']').withBlanks <> (char('(') ~> figureParser <~ char(')')).withBlanks
+case object rotationParser extends Parser[Drawable] {
+  val parser: Parser[(Double, Drawable)] = string("rotacion") ~> inBracketsParser(double) <> inParenthesesDrawableParser
 
-  override def apply(source: String): Try[ParseResult[Figure]] = {
+  override def apply(source: String): Try[ParseResult[Drawable]] = {
     this.parser
-        .map[Figure](tupleParsed => {
+        .map[Drawable](tupleParsed => {
           val grade = tupleParsed._1
-          Rotate(if (grade > 359) grade % 360 else grade, tupleParsed._2)
+          Rotate(grade % 360, tupleParsed._2)
         })(source)
   }
 }

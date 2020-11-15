@@ -1,13 +1,13 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.Figure
+import figure_parsers.internal.Drawable
 import figure_parsers.internal.Figure._
 import scalafx.scene.paint.Color
 import tadp.internal.TADPDrawingAdapter
 
-case class draw(figure: Figure) extends (TADPDrawingAdapter => TADPDrawingAdapter){
-  def apply(adapter: TADPDrawingAdapter): TADPDrawingAdapter = figure match {
-    case Group(figures) => figures.foldLeft(adapter) { (_adapter, _figure) => draw(_figure)(_adapter)}
+case class draw(drawable: Drawable) extends (TADPDrawingAdapter => TADPDrawingAdapter){
+  def apply(adapter: TADPDrawingAdapter): TADPDrawingAdapter = drawable match {
+    case Group(drawables) => drawables.foldLeft(adapter) { (_adapter, _figure) => draw(_figure)(_adapter)}
 
     case Colour(red, green, blue, _figure) => draw(_figure)(adapter.beginColor(Color.rgb(red, green, blue))).end()
     case Rotate(grade, _figure) => draw(_figure)(adapter.beginRotate(grade)).end()

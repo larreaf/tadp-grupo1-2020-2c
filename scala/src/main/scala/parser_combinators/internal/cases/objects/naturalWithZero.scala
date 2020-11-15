@@ -10,8 +10,6 @@ case object naturalWithZero extends Parser[Integer] {
   val parser: positiveClosure[Char] = positiveClosure(digit)
 
   override def apply(source: String): Try[ParseResult[Integer]] = {
-    this.parser(source).map(parseResult =>
-      ParseResult(parseResult.parsed.mkString("").toInt, parseResult.remnant)
-    )
+    this.parser.map[Integer](digits => digits.mkString("").toInt)(source)
   }
 }
