@@ -1,6 +1,6 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.Drawable
+import figure_parsers.internal.{Drawable, Transformation}
 import figure_parsers.internal.Figure._
 
 import scala.util.Try
@@ -10,21 +10,19 @@ case object simplify extends Function[Drawable, Drawable] {
 
   def simplifyGroup(drawables: List[Drawable]): Drawable = {
     drawables match {
-      case colours: List[Colour] if this.allColoursAreEqual(colours) =>
-        val colour = colours.head
-        val drawables = colours.map(c => c.drawable)
-        colour.copy(drawable = this.simplifyGroupInnerFigures(drawables))
+      case transformations: List[Transformation] if this.allTransformationsAreEqual(transformations) =>
+        val tHead = transformations.head
+        val drawables = transformations.map(t => t.drawable())
+        tHead.copyWithDrawable(drawable = this.simplifyGroupInnerFigures(drawables))
       case _ => this.simplifyGroupInnerFigures(drawables)
     }
   }
 
   def simplifyGroupInnerFigures(drawables: List[Drawable]): Drawable = Group(for (drawable <- drawables) yield simplify(drawable))
 
-  def allColoursAreEqual(colours: List[Colour]): Boolean = {
-    Try({
-      val head = colours.head
-      colours.forall(colour => colour.equals(head))
-    }).getOrElse(false)
+  def allTransformationsAreEqual(transformations: List[Transformation]): Boolean = {
+    Try(transformations.forall(t => t.equals(transformations.head)))
+        .getOrElse(false)
   }
 
   def apply(drawableTree: Drawable): Drawable = drawableTree match {

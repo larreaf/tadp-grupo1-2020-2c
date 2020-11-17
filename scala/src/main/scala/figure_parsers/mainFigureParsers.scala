@@ -46,7 +46,7 @@ object mainFigureParsers extends App {
 
   val resultOfSimplify = simplify(parsedFiguresToSimplify.get.parsed)
 
-  val groupWithCommonColour = "grupo(color[255, 255, 255](rectangulo[0 @ 0, 400 @ 400]),color[255, 255, 255](rectangulo[0 @ 0, 400 @ 400]),color[255, 255, 255](rectangulo[0 @ 0, 400 @ 400]))"
+  val groupWithCommonColour = "grupo(escala[1.45, 1.45](rectangulo[0 @ 0, 400 @ 400]),escala[1.45, 1.45](rectangulo[0 @ 0, 400 @ 400]),escala[1.45, 1.45](rectangulo[0 @ 0, 400 @ 400]))"
 
   val groupWithCommonColourParsed = drawableParser(groupWithCommonColour)
 
@@ -57,22 +57,6 @@ object mainFigureParsers extends App {
   val groupWithNullTransformationsParsed = drawableParser(groupWithNullTransformations)
 
   val resultOfSimplify3 = simplify(groupWithNullTransformationsParsed.get.parsed)
-
-  /*** Prueba dibujado ***/
-  val testDrawString = "grupo(color[10, 150, 255](rectangulo[200 @ 200, 400 @ 400]),rectangulo[100 @ 200, 300 @ 400])"
-
-  var figureFile = ""
-
-  val bufferedSource = Source.fromFile("resources/carpincho.txt")
-  for (line <- bufferedSource.getLines) {
-    figureFile = figureFile.concat(line)
-  }
-  bufferedSource.close
-
-  val testDraw = drawableParser(figureFile)
-
-  TADPDrawingAdapter
-    .forScreen (draw(testDraw.get.parsed))
 
   val dummyImplicit = 2
 }
