@@ -21,9 +21,7 @@ case class Circle(center: Coordinates2D, radius: Double) extends AtomicFigure
 case class Group(drawables: List[Drawable]) extends Figure {
   override def simplify: Drawable = {
     drawables.head match {
-      case transformation: Transformation if drawables.slice(1, drawables.length)
-                                                      .forall(d => d == transformation) =>
-        transformation.change(this.simplifiedGroup(drawables.map(d => d.innerDrawable)))
+      case transformation: Transformation if drawables.forall(d => d == transformation) => transformation.change(this.simplifiedGroup(drawables.map(d => d.innerDrawable)))
       case _ => this.simplifiedGroup(this.drawables)
     }
   }
