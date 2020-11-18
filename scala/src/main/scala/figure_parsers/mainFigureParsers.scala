@@ -2,7 +2,7 @@ package figure_parsers
 
 import figure_parsers.cases.Coordinates2D
 import figure_parsers.cases.objects._
-import figure_parsers.internal.Figure.{Circle, Group, Scale}
+import figure_parsers.internal.{Circle, Group, Relocate, Scale}
 
 object mainFigureParsers extends App {
   val triangle = "triangulo[0 @ 100, 200 @ 300, 400 @ 500]"
@@ -65,11 +65,17 @@ object mainFigureParsers extends App {
 
   val ad = Scale(1, 1, Scale(1, 1, Circle(Coordinates2D(2, 5), 3)))
 
-  val rel = Scale(2, 3, Circle(Coordinates2D(2, 5), 3))
+  val rel = Relocate(2, 3, Circle(Coordinates2D(2, 5), 3))
 
   val mot = ad == rel
 
   val m = ad.simplify
+
+  val drawables = Scale(1, 1, Scale(1, 1, Circle(Coordinates2D(2, 5), 3)))::Relocate(1, 1, Circle(Coordinates2D(2, 5), 3))::Nil
+
+  if (drawables.forall(d => d == ad)) {
+    ad.simplify
+  }
 
   val dummyImplicit = 2
 }

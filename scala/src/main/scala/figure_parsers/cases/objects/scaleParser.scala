@@ -1,7 +1,6 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.{Drawable, inBracketsParser, inParenthesesDrawableParser}
-import figure_parsers.internal.Figure.Scale
+import figure_parsers.internal.{Drawable, Scale, inBracketsParser, inParenthesesDrawableParser}
 import parser_combinators.internal.cases.classes.{ParseResult, char, string}
 import parser_combinators.internal.cases.objects.double
 import parser_combinators.internal.mixins.Parser

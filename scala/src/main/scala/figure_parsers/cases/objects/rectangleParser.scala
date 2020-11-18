@@ -1,8 +1,7 @@
 package figure_parsers.cases.objects
 
 import figure_parsers.cases.Coordinates2D
-import figure_parsers.internal.Figure.Rectangle
-import figure_parsers.internal.{Drawable, inBracketsParser, point2DParser}
+import figure_parsers.internal.{Drawable, Rectangle, inBracketsParser, point2DParser}
 import parser_combinators.internal.cases.classes.{ParseResult, char, string}
 import parser_combinators.internal.mixins.Parser
 
