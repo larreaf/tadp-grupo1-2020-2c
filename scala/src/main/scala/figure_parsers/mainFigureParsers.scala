@@ -1,9 +1,8 @@
 package figure_parsers
 
+import figure_parsers.cases.Coordinates2D
 import figure_parsers.cases.objects._
-import tadp.internal.TADPDrawingAdapter
-
-import scala.io.Source
+import figure_parsers.internal.Figure.{Circle, Group}
 
 object mainFigureParsers extends App {
   val triangle = "triangulo[0 @ 100, 200 @ 300, 400 @ 500]"
@@ -44,19 +43,25 @@ object mainFigureParsers extends App {
 
   val parsedFiguresToSimplify = drawableParser(everySimplificationUnlessGroupColor)
 
-  val resultOfSimplify = simplify(parsedFiguresToSimplify.get.parsed)
+  val resultOfSimplify = parsedFiguresToSimplify.get.parsed.simplify
 
   val groupWithCommonColour = "grupo(escala[1.45, 1.45](rectangulo[0 @ 0, 400 @ 400]),escala[1.45, 1.45](rectangulo[0 @ 0, 400 @ 400]),escala[1.45, 1.45](rectangulo[0 @ 0, 400 @ 400]))"
 
   val groupWithCommonColourParsed = drawableParser(groupWithCommonColour)
 
-  val resultOfSimplify2 = simplify(groupWithCommonColourParsed.get.parsed)
+  val resultOfSimplify2 = groupWithCommonColourParsed.get.parsed.simplify
 
   val groupWithNullTransformations = "grupo(escala[1, 1](circulo[0 @ 5, 10]),traslacion[0, 0](circulo[0 @ 5, 10]),rotacion[0](rectangulo[100 @ 200, 300 @ 400])))"
 
   val groupWithNullTransformationsParsed = drawableParser(groupWithNullTransformations)
 
-  val resultOfSimplify3 = simplify(groupWithNullTransformationsParsed.get.parsed)
+  val resultOfSimplify3 = groupWithNullTransformationsParsed.get.parsed.simplify
+
+  val coo = Group(Circle(Coordinates2D(2, 5), 4)::Nil)
+
+  val d2 = Group(Circle(Coordinates2D(2, 5), 3)::Nil)
+
+  val as = coo == d2
 
   val dummyImplicit = 2
 }
