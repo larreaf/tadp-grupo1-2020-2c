@@ -44,8 +44,8 @@ object Figure {
     override def hashCode(): Int = (x, y).##
     override def change(drawable: Drawable): Transformation = this.copy(drawable = drawable)
     override def simplify: Drawable = this match {
-      case Scale(x, y, Scale(_x, _y, drawable)) => Scale(x * _x, y * _y, drawable.simplify)
       case Scale(1, 1, drawable) => drawable.simplify
+      case Scale(x, y, Scale(_x, _y, drawable)) => Scale(x * _x, y * _y, drawable.simplify)
       case Scale(_, _, drawable) => this.change(drawable.simplify)
     }
   }
@@ -53,8 +53,8 @@ object Figure {
     override def hashCode(): Int = grade.##
     override def change(drawable: Drawable): Transformation = this.copy(drawable = drawable)
     override def simplify: Drawable = this match {
-      case Rotate(grade, Rotate(_grade, drawable)) => Rotate(grade + _grade, drawable.simplify)
       case Rotate(0, drawable) => drawable.simplify
+      case Rotate(grade, Rotate(_grade, drawable)) => Rotate(grade + _grade, drawable.simplify)
       case Rotate(grade, drawable) => Rotate(grade, drawable.simplify)
     }
   }
@@ -62,8 +62,8 @@ object Figure {
     override def hashCode(): Int = (x, y).##
     override def change(drawable: Drawable): Transformation = this.copy(drawable = drawable)
     override def simplify: Drawable = this match {
-      case Relocate(x, y, Relocate(_x, _y, drawable)) => Relocate(x + _x, y + _y, drawable.simplify)
       case Relocate(0, 0, drawable) => drawable.simplify
+      case Relocate(x, y, Relocate(_x, _y, drawable)) => Relocate(x + _x, y + _y, drawable.simplify)
       case Relocate(_, _, drawable) => this.change(drawable.simplify)
     }
   }
