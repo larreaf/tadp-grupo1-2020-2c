@@ -36,7 +36,7 @@ object Figure {
     override def hashCode(): Int = (red, green, blue).##
     override def change(drawable: Drawable): Transformation = this.copy(drawable = drawable)
     override def simplify: Drawable = this match {
-      case Colour(_, _, _, colour) => colour.simplify
+      case Colour(_, _, _, colour: Colour) => colour.simplify
       case Colour(red, green, blue, drawable) => Colour(red, green, blue, drawable.simplify)
     }
   }
