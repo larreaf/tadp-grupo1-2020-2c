@@ -1,7 +1,7 @@
 package figure_parsers.cases.objects
 
 import figure_parsers.internal.Drawable
-import figure_parsers.internal.Figure._
+import figure_parsers.internal._
 import scalafx.scene.paint.Color
 import tadp.internal.TADPDrawingAdapter
 

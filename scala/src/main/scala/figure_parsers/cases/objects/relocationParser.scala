@@ -1,7 +1,6 @@
 package figure_parsers.cases.objects
 
-import figure_parsers.internal.Figure.Relocate
-import figure_parsers.internal.{Drawable, inBracketsParser, inParenthesesDrawableParser}
+import figure_parsers.internal.{Drawable, Relocate, inBracketsParser, inParenthesesDrawableParser}
 import parser_combinators.internal.cases.classes.{ParseResult, string}
 import parser_combinators.internal.cases.objects.double
 import parser_combinators.internal.mixins.Parser
